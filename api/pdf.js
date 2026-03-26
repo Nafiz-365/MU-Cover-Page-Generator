@@ -177,10 +177,13 @@ module.exports = async (req, res) => {
 
     const page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-    
-    // Use 'load' instead of 'networkidle0' to speed up; our evaluate block handles the rest
-    await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
     await page.emulateMediaType('screen');
+    
+    try {
+      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 7000 });
+    } catch (e) {
+      console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
+    }
 
     console.log(`Content set in ${Date.now() - startTime}ms. Waiting for fonts/images...`);
 

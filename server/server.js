@@ -180,8 +180,13 @@ app.post('/api/pdf', async (req, res) => {
 
     // Stable viewport; actual PDF size is controlled by page.pdf(format:A4)
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'load' });
     await page.emulateMediaType('screen');
+    
+    try {
+      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 7000 });
+    } catch (e) {
+      console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
+    }
 
     // Ensure fonts and images are ready before PDF
     await page.evaluate(async () => {
