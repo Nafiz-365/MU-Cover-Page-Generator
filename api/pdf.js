@@ -204,16 +204,16 @@ module.exports = async (req, res) => {
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-      preferCSSPageSize: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 }
     });
 
     console.log(`PDF generated in ${Date.now() - startTime}ms. Total size: ${pdf.length} bytes`);
 
     const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
     res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', pdf.length);
     res.setHeader('Content-Disposition', `attachment; filename="CoverPage_${safeName}.pdf"`);
-    res.send(pdf);
+    res.end(pdf);
 
   } catch (err) {
     console.error('PDF Generation Error:', err);

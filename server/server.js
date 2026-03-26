@@ -206,14 +206,14 @@ app.post('/api/pdf', async (req, res) => {
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 },
-      preferCSSPageSize: true,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 }
     });
 
     const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
     res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Length', pdf.length);
     res.setHeader('Content-Disposition', `attachment; filename="CoverPage_${safeName}.pdf"`);
-    res.send(pdf);
+    res.end(pdf);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'PDF_GENERATION_FAILED' });
