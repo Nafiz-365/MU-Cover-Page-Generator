@@ -399,8 +399,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             btnGenerate.disabled = true;
-            btnGenerate.style.opacity = '0.7';
-            btnGenerate.textContent = 'GENERATING...';
+            btnGenerate.classList.add('loading');
+            btnGenerate.innerHTML = `<span class="spinner"></span> GENERATING...`;
 
             const getAccentRgb = (hex) => {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 URL.revokeObjectURL(url);
 
                 btnGenerate.disabled = false;
-                btnGenerate.style.opacity = '1';
+                btnGenerate.classList.remove('loading');
                 btnGenerate.innerHTML = originalContent;
                 showToast('Cover Page Generated Successfully!');
                 if (typeof confetti === 'function') {
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 console.error('Server-side PDF generation failed:', e);
                 btnGenerate.disabled = false;
-                btnGenerate.style.opacity = '1';
+                btnGenerate.classList.remove('loading');
                 btnGenerate.innerHTML = originalContent;
                 showToast(`Error: ${e.message}`);
             }
