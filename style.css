@@ -1200,8 +1200,8 @@ select:focus {
     .a4-page {
         transform-origin: top center;
         transform: scale(0.65);
-        /* Avoid negative margins that can cause preview cutoff */
-        margin-bottom: 1.5rem;
+        /* 297mm * (1 - 0.65) = 103.95mm lost space */
+        margin-bottom: -100mm; 
     }
 }
 
@@ -1416,10 +1416,9 @@ select:focus {
         transform-origin: top center;
 
         /* 
-         * Height: 297mm. Scaled 0.48 -> ~142mm.
-         * Original: 297mm. Diff: ~155mm.
+         * Height: 297mm. Scaled 0.48. Lost height: 297 * (1 - 0.48) = 154.44mm.
          */
-        margin-bottom: 1rem;
+        margin-bottom: -150mm;
         margin-left: 0;
         margin-right: 0;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
