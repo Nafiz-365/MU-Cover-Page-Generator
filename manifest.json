@@ -9,9 +9,9 @@
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "assets/favicon.jpg",
+      "src": "assets/favicon-cyber.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     },
     {
       "src": "assets/logo.png",
