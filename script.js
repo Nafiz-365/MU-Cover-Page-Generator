@@ -457,7 +457,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                if (!resp.ok) throw new Error(`Server PDF failed: ${resp.status}`);
+                const contentType = resp.headers.get('Content-Type');
+                if (!resp.ok) {
+                    let errorMsg = `Server Error: ${resp.status}`;
+                    try {
+                        const errData = await resp.json();
+                        if (errData.message) errorMsg = errData.message;
+                    } catch { /* ignore parse error */ }
+                    throw new Error(errorMsg);
+                }
+
+                // Safety check: If it's not a PDF (e.g. Vercel timeout HTML), don't download
+                if (contentType && !contentType.includes('application/pdf')) {
+                    throw new Error('Server returned an invalid file format (likely a timeout). Please try again.');
+                }
+
                 const blob = await resp.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -487,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnGenerate.disabled = false;
                 btnGenerate.style.opacity = '1';
                 btnGenerate.innerHTML = originalContent;
-                showToast('PDF server not running. Start app with: npm run dev');
+                showToast(`Error: ${e.message}`);
             }
         });
     }

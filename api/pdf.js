@@ -172,10 +172,17 @@ module.exports = async (req, res) => {
       ignoreHTTPSErrors: true,
     });
 
+    const startTime = Date.now();
+    console.log('PDF Generation Started');
+
     const page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-    await page.setContent(html, { waitUntil: 'networkidle0' });
+    
+    // Use 'load' instead of 'networkidle0' to speed up; our evaluate block handles the rest
+    await page.setContent(html, { waitUntil: 'load', timeout: 30000 });
     await page.emulateMediaType('screen');
+
+    console.log(`Content set in ${Date.now() - startTime}ms. Waiting for fonts/images...`);
 
     await page.evaluate(async () => {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -189,12 +196,16 @@ module.exports = async (req, res) => {
       }));
     });
 
+    console.log(`Evaluated in ${Date.now() - startTime}ms. Generating PDF...`);
+
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 },
       preferCSSPageSize: true,
     });
+
+    console.log(`PDF generated in ${Date.now() - startTime}ms. Total size: ${pdf.length} bytes`);
 
     const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
     res.setHeader('Content-Type', 'application/pdf');
@@ -203,7 +214,7 @@ module.exports = async (req, res) => {
 
   } catch (err) {
     console.error('PDF Generation Error:', err);
-    res.status(500).json({ error: 'PDF_GENERATION_FAILED', message: err.message });
+    res.status(500).json({ error: 'PDF_GENERATION_FAILED', message: err.message, stack: err.stack });
   } finally {
     if (browser) {
       await browser.close();
