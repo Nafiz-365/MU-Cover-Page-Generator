@@ -183,7 +183,7 @@ app.post('/api/pdf', async (req, res) => {
     await page.emulateMediaType('screen');
     
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 7000 });
+      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 4000 });
     } catch (e) {
       console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
     }
