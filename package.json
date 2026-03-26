@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/Nafiz-365/Cover-Page-Generator#readme",
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.4",
     "express": "^5.2.1",
-    "puppeteer": "^24.40.0"
+    "puppeteer": "^24.40.0",
+    "puppeteer-core": "^24.40.0"
   }
 }
