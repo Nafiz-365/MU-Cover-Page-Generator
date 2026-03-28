@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const captureArea = document.getElementById('capture-area');
 
     const setTemplate = (template) => {
-        const templates = ['template-classic', 'template-modern', 'template-bordered', 'template-tech'];
+        const templates = ['template-classic', 'template-minimal', 'template-modern', 'template-bordered', 'template-tech', 'template-thesis', 'template-cards', 'template-stripe'];
         captureArea.classList.remove(...templates);
         if (template) {
             captureArea.classList.add(template);
@@ -208,8 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectFont = document.getElementById('select-font');
 
     const setFont = (fontClass) => {
-        // Remove existing font classes
-        const fonts = ['font-classic', 'font-sans', 'font-modern', 'font-serif', 'font-mono'];
+        const fonts = ['font-classic', 'font-sans', 'font-modern', 'font-serif', 'font-mono', 'font-montserrat', 'font-playfair', 'font-oswald'];
         captureArea.classList.remove(...fonts);
 
         // Add new class
@@ -406,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
                 return result
                     ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-                    : '78, 205, 196';
+                    : '37, 99, 235';
             };
 
             // Helper: fetch any img src and return base64 data URL
@@ -444,8 +443,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 submissionDate: inputs.submissionDate.value,
                 template: localStorage.getItem('mu_template') || 'template-classic',
                 font: localStorage.getItem('mu_font') || 'font-classic',
-                accentColor: localStorage.getItem('mu_accent_color') || '#4ecdc4',
-                accentRgb: getAccentRgb(localStorage.getItem('mu_accent_color') || '#4ecdc4'),
+                accentColor: localStorage.getItem('mu_accent_color') || '#2563eb',
+                accentRgb: getAccentRgb(localStorage.getItem('mu_accent_color') || '#2563eb'),
                 logoDataUrl,
                 universityLine
             };
@@ -502,6 +501,101 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnGenerate.classList.remove('loading');
                 btnGenerate.innerHTML = originalContent;
                 showToast(`Error: ${e.message}`);
+            }
+        });
+    }
+
+    // Save as Image
+    const btnImage = document.getElementById('btn-image');
+    if (btnImage) {
+        btnImage.addEventListener('click', async () => {
+            const originalContent = btnImage.innerHTML;
+
+            const requiredFields = [
+                { id: 'input-student-name', name: 'Student Name' },
+                { id: 'input-work-title', name: 'Work Title' },
+                { id: 'input-student-id', name: 'Student ID' }
+            ];
+
+            let firstError = null;
+            requiredFields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (!el || !el.value.trim()) {
+                    el?.classList.add('error-shake');
+                    setTimeout(() => el?.classList.remove('error-shake'), 500);
+                    if (!firstError) firstError = field.name;
+                }
+            });
+
+            if (firstError) {
+                showToast(`Please fill in: ${firstError}`);
+                return;
+            }
+
+            btnImage.disabled = true;
+            btnImage.classList.add('loading');
+            btnImage.innerHTML = `<span class="spinner"></span> SAVING...`;
+
+            try {
+                if (typeof html2canvas === 'undefined') {
+                    throw new Error('Image generation library not loaded here.');
+                }
+                const captureArea = document.getElementById('capture-area');
+                
+                // Slight delay to ensure UI updates
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // A4 dimensions at 96 DPI for pixel-perfect clarity
+                const A4_WIDTH = 794;
+                const A4_HEIGHT = 1123;
+
+                const canvas = await html2canvas(captureArea, {
+                    scale: 3, // Ultra-high resolution for perfect print quality
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#ffffff',
+                    width: A4_WIDTH,
+                    height: A4_HEIGHT,
+                    windowWidth: A4_WIDTH,
+                    windowHeight: A4_HEIGHT,
+                    onclone: (clonedDoc) => {
+                        // Fix for mobile devices where the preview is scaled down via CSS
+                        const clonedArea = clonedDoc.getElementById('capture-area');
+                        if (clonedArea) {
+                            clonedArea.style.transform = 'none';
+                            clonedArea.style.margin = '0';
+                            clonedArea.style.width = '210mm';
+                            clonedArea.style.height = '297mm';
+                            clonedArea.style.boxShadow = 'none';
+                        }
+                    }
+                });
+                
+                const image = canvas.toDataURL('image/png', 1.0);
+                const a = document.createElement('a');
+                a.href = image;
+                const safeName = (document.getElementById('input-student-name').value || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
+                a.download = `CoverPage_${safeName}.png`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+
+                showToast('Cover Page Saved as Image!');
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 150,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#4ecdc4', '#ff6b6b', '#4f46e5', '#f59e0b', '#10b981']
+                    });
+                }
+            } catch (e) {
+                console.error('Image generation failed:', e);
+                showToast(`Error saving image: ${e.message}`);
+            } finally {
+                btnImage.disabled = false;
+                btnImage.classList.remove('loading');
+                btnImage.innerHTML = originalContent;
             }
         });
     }
@@ -626,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
     customColorInput?.addEventListener('input', (e) => setAccentColor(e.target.value));
 
     // Load saved accent
-    const savedAccent = localStorage.getItem('mu_accent_color') || '#4ecdc4';
+    const savedAccent = localStorage.getItem('mu_accent_color') || '#2563eb';
     setAccentColor(savedAccent);
 
     // --- Advanced UX: Smart Input Intelligence ---

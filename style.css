@@ -1,9 +1,9 @@
 :root {
     /* Design Tokens */
-    --accent-color: #4ecdc4;
+    --accent-color: #2563eb;
     /* Default Accent */
     --accent-blue: var(--accent-color);
-    --accent-glow: rgba(78, 205, 196, 0.4);
+    --accent-glow: rgba(37, 99, 235, 0.4);
     --accent-dark: #0f172a;
     --transition-fast: 0.2s ease;
     --transition-mid: 0.3s ease;
@@ -813,12 +813,10 @@ select:focus {
     gap: 1rem;
 }
 
-.btn-generate {
+.btn-generate, .btn-image {
     position: relative;
     width: 100%;
     padding: 1.1rem 2rem;
-    background: var(--accent-color);
-    color: #000;
     border: none;
     border-radius: 14px;
     font-weight: 800;
@@ -832,7 +830,20 @@ select:focus {
     justify-content: center;
     gap: 12px;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.btn-generate {
+    background: var(--accent-color);
+    color: #000;
     box-shadow: 0 5px 15px var(--accent-glow);
+    animation: buttonPulse 3s infinite ease-in-out;
+}
+
+.btn-image {
+    background: transparent;
+    color: var(--text-main);
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Breathing Glow Animation */
@@ -842,19 +853,23 @@ select:focus {
     100% { box-shadow: 0 5px 15px var(--accent-glow); }
 }
 
-.btn-generate {
-    animation: buttonPulse 3s infinite ease-in-out;
-}
-
-.btn-generate:hover {
+.btn-generate:hover, .btn-image:hover {
     transform: translateY(-4px) scale(1.02);
     filter: brightness(1.1);
-    box-shadow: 0 15px 35px rgba(var(--accent-rgb), 0.7);
     letter-spacing: 2px;
 }
 
+.btn-generate:hover {
+    box-shadow: 0 15px 35px rgba(var(--accent-rgb), 0.7);
+}
+
+.btn-image:hover {
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.3);
+    background: rgba(var(--accent-rgb, 78, 205, 196), 0.1);
+}
+
 /* Shine effect pseudo-element */
-.btn-generate::after {
+.btn-generate::after, .btn-image::after {
     content: '';
     position: absolute;
     top: -50%;
@@ -866,17 +881,17 @@ select:focus {
     transition: all 0s;
 }
 
-.btn-generate:hover::after {
+.btn-generate:hover::after, .btn-image:hover::after {
     left: 140%;
     transition: all 0.7s ease-in-out;
 }
 
-.btn-generate:active {
+.btn-generate:active, .btn-image:active {
     transform: scale(0.96) translateY(0);
 }
 
 /* Loading state with Spinner */
-.btn-generate:disabled {
+.btn-generate:disabled, .btn-image:disabled {
     opacity: 0.9;
     cursor: wait;
     filter: none;
@@ -884,7 +899,7 @@ select:focus {
     animation: none; /* stop breathing when loading */
 }
 
-.btn-generate.loading {
+.btn-generate.loading, .btn-image.loading {
     color: transparent; /* hide original text if needed, but we replace innerHTML */
 }
 
@@ -940,7 +955,7 @@ select:focus {
     width: 210mm;
     height: 297mm;
     background-color: white;
-    color: #1a202c;
+    color: #000000;
     padding: 25mm 20mm 20mm;
     /* Increased top margin, reduced internal gaps */
     display: flex;
@@ -1019,7 +1034,7 @@ select:focus {
 
 .assignment-on {
     font-size: 1.3rem;
-    color: #4a5568;
+    color: #000000;
     margin-bottom: 0.8rem;
     width: 100%;
     text-align: center;
@@ -1030,13 +1045,13 @@ select:focus {
     font-style: italic;
     font-weight: 500;
     margin-bottom: 0.5rem;
-    color: #4a5568;
+    color: #000000;
 }
 
 #view-work-title {
     font-weight: 800;
     font-style: italic;
-    color: #1a202c;
+    color: #000000;
     border-bottom: 2.5px solid var(--accent-color);
     /* Dynamic Accent */
     display: inline-block;
@@ -1070,12 +1085,12 @@ select:focus {
 
 .course-row .label {
     font-weight: 700;
-    color: #2d3748;
+    color: #000000;
     white-space: nowrap;
 }
 
 .course-row .value {
-    color: #1a202c;
+    color: #000000;
     flex: 1;
     border-bottom: 1px dotted #a0aec0;
     height: 1.6rem;
@@ -1124,8 +1139,7 @@ select:focus {
     margin-bottom: 0.5rem;
     font-size: 1rem;
     line-height: 1.4;
-    color: #111827;
-    /* Darker near-black for better contrast */
+    color: #000000;
 }
 
 .footer-info .name {
@@ -1145,7 +1159,7 @@ select:focus {
 .footer-info .section,
 .footer-info .designation {
     font-size: 0.95rem;
-    color: #1a202c;
+    color: #000000;
     /* Sharp black-gray */
     font-weight: 600;
     /* Semi-bold for clarity */
@@ -1736,6 +1750,66 @@ select:focus {
     border-radius: 0;
 }
 
+/* Template: Thesis */
+.template-thesis {
+    padding: 25mm 20mm !important;
+}
+.template-thesis::before {
+    content: "";
+    position: absolute;
+    top: 8mm; left: 8mm; right: 8mm; bottom: 8mm;
+    border: 1px solid #1a202c;
+    pointer-events: none;
+}
+.template-thesis::after {
+    content: "";
+    position: absolute;
+    top: 9.5mm; left: 9.5mm; right: 9.5mm; bottom: 9.5mm;
+    border: 2.5px solid #1a202c;
+    pointer-events: none;
+}
+
+/* Template: Cards */
+.template-cards {
+    background-color: #f4f7fb;
+}
+.template-cards .preview-course-box {
+    background-color: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: none;
+    border-radius: 16px;
+}
+.template-cards .preview-footer {
+    gap: 2rem;
+}
+.template-cards .footer-column {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+.template-cards .footer-column:first-child {
+    padding-left: 1.5rem;
+}
+.template-cards .footer-column h3 {
+    margin-top: -5px;
+}
+
+/* Template: Stripe */
+.template-stripe {
+    padding-left: 35mm !important;
+}
+.template-stripe::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 20mm;
+    background-color: var(--accent-color);
+}
+.template-stripe .preview-course-box {
+    margin-left: 0;
+}
+
 /* --- Typography Options --- */
 .font-classic {
     font-family: 'Inter', sans-serif !important;
@@ -1755,4 +1829,16 @@ select:focus {
 
 .font-mono {
     font-family: 'Roboto Mono', monospace !important;
+}
+
+.font-montserrat {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+.font-playfair {
+    font-family: 'Playfair Display', serif !important;
+}
+
+.font-oswald {
+    font-family: 'Oswald', sans-serif !important;
 }

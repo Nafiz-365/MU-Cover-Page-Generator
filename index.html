@@ -33,10 +33,11 @@
     <link rel="icon" type="image/png" href="assets/favicon-cyber.png" />
     <meta name="theme-color" content="#2563eb" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&family=Open+Sans:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   </head>
 
   <body>
@@ -265,6 +266,9 @@
                   <option value="template-modern">Modern (Accent)</option>
                   <option value="template-bordered">Bordered (Elegant)</option>
                   <option value="template-tech">Tech (Geometric)</option>
+                  <option value="template-thesis">Thesis (Double Border)</option>
+                  <option value="template-cards">Card UI (Modern Shadow)</option>
+                  <option value="template-stripe">Side Stripe (Corporate)</option>
                 </select>
               </section>
 
@@ -276,6 +280,9 @@
                   <option value="font-modern">Poppins (Modern)</option>
                   <option value="font-serif">Merriweather (Formal)</option>
                   <option value="font-mono">Roboto Mono (Tech)</option>
+                  <option value="font-montserrat">Montserrat (Corporate)</option>
+                  <option value="font-playfair">Playfair Display (Elegant)</option>
+                  <option value="font-oswald">Oswald (Bold Heading)</option>
                 </select>
               </section>
             </div>
@@ -286,8 +293,8 @@
                 <div class="accent-picker">
                   <div
                     class="color-dot active"
-                    style="background: #4ecdc4"
-                    data-color="#4ecdc4"
+                    style="background: #2563eb"
+                    data-color="#2563eb"
                   ></div>
                   <div
                     class="color-dot"
@@ -318,7 +325,7 @@
                     <input
                       type="color"
                       id="input-accent-color"
-                      value="#4ecdc4"
+                      value="#2563eb"
                       title="Custom Color"
                     />
                   </div>
@@ -390,6 +397,12 @@
                 <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
               </svg>
               GENERATE PDF
+            </button>
+            <button class="btn btn-image" id="btn-image">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
+              </svg>
+              SAVE AS IMAGE
             </button>
           </div>
         </div>

@@ -107,8 +107,8 @@ async function buildPdfHtml(data) {
     console.error('Failed to load default logo in API:', e.message);
   }
 
-  const accentColor = data?.accentColor || '#4ecdc4';
-  const accentRgb = data?.accentRgb || '78, 205, 196';
+  const accentColor = data?.accentColor || '#2563eb';
+  const accentRgb = data?.accentRgb || '37, 99, 235';
 
   const pdfOnlyCss = `
     :root { 
@@ -142,7 +142,7 @@ async function buildPdfHtml(data) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&family=Open+Sans:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
     <style>${css}</style>
     <style>${pdfOnlyCss}</style>
   </head>
