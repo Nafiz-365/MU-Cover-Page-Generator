@@ -370,6 +370,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
+
+    const getAccentRgb = (hex) => {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result
+            ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+            : '37, 99, 235';
+    };
+
+    const getLogoAsBase64 = async (imgEl) => {
+        if (!imgEl) return null;
+        if (imgEl.src.startsWith('data:')) return imgEl.src;
+        try {
+            const resp = await fetch(imgEl.src);
+            const blob = await resp.blob();
+            return await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+            });
+        } catch { return null; }
+    };
+
+    const buildPayload = async () => {
+        const logoEl = document.querySelector('.preview-logo');
+        const logoDataUrl = await getLogoAsBase64(logoEl);
+        return {
+            mode: btnLabReport?.classList.contains('active') ? 'lab' : 'assignment',
+            studentName: inputs.studentName.value,
+            studentId: inputs.studentId.value,
+            studentBatch: inputs.studentBatch.value,
+            studentSection: inputs.studentSection.value,
+            studentDept: inputs.studentDept.value,
+            teacherName: inputs.teacherName.value,
+            teacherDesignation: inputs.teacherDesignation.value,
+            teacherDept: inputs.teacherDept.value,
+            workTitle: inputs.workTitle.value,
+            courseName: inputs.courseName.value,
+            courseCode: inputs.courseCode.value,
+            workNo: inputs.workNo.value,
+            submissionDate: inputs.submissionDate.value,
+            template: localStorage.getItem('mu_template') || 'template-classic',
+            font: localStorage.getItem('mu_font') || 'font-classic',
+            accentColor: localStorage.getItem('mu_accent_color') || '#2563eb',
+            accentRgb: getAccentRgb(localStorage.getItem('mu_accent_color') || '#2563eb'),
+            logoDataUrl,
+            universityLine
+        };
+    };
+
     // Download PDF (Renamed to Generate)
     const btnGenerate = document.getElementById('btn-generate');
     if (btnGenerate) {
@@ -401,53 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnGenerate.classList.add('loading');
             btnGenerate.innerHTML = `<span class="spinner"></span> GENERATING...`;
 
-            const getAccentRgb = (hex) => {
-                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                return result
-                    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-                    : '37, 99, 235';
-            };
-
-            // Helper: fetch any img src and return base64 data URL
-            const getLogoAsBase64 = async (imgEl) => {
-                if (!imgEl) return null;
-                if (imgEl.src.startsWith('data:')) return imgEl.src;
-                try {
-                    const resp = await fetch(imgEl.src);
-                    const blob = await resp.blob();
-                    return await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
-                } catch { return null; }
-            };
-
-            const logoEl = document.querySelector('.preview-logo');
-            const logoDataUrl = await getLogoAsBase64(logoEl);
-
-            const payload = {
-                mode: btnLabReport?.classList.contains('active') ? 'lab' : 'assignment',
-                studentName: inputs.studentName.value,
-                studentId: inputs.studentId.value,
-                studentBatch: inputs.studentBatch.value,
-                studentSection: inputs.studentSection.value,
-                studentDept: inputs.studentDept.value,
-                teacherName: inputs.teacherName.value,
-                teacherDesignation: inputs.teacherDesignation.value,
-                teacherDept: inputs.teacherDept.value,
-                workTitle: inputs.workTitle.value,
-                courseName: inputs.courseName.value,
-                courseCode: inputs.courseCode.value,
-                workNo: inputs.workNo.value,
-                submissionDate: inputs.submissionDate.value,
-                template: localStorage.getItem('mu_template') || 'template-classic',
-                font: localStorage.getItem('mu_font') || 'font-classic',
-                accentColor: localStorage.getItem('mu_accent_color') || '#2563eb',
-                accentRgb: getAccentRgb(localStorage.getItem('mu_accent_color') || '#2563eb'),
-                logoDataUrl,
-                universityLine
-            };
+            const payload = await buildPayload();
 
             // Server-side PDF (deterministic across mobile/desktop)
             try {
@@ -537,48 +540,32 @@ document.addEventListener('DOMContentLoaded', () => {
             btnImage.innerHTML = `<span class="spinner"></span> SAVING...`;
 
             try {
-                if (typeof html2canvas === 'undefined') {
-                    throw new Error('Image generation library not loaded here.');
-                }
-                const captureArea = document.getElementById('capture-area');
+                const payload = await buildPayload();
                 
-                // Slight delay to ensure UI updates
-                await new Promise(resolve => setTimeout(resolve, 100));
-
-                // A4 dimensions at 96 DPI for pixel-perfect clarity
-                const A4_WIDTH = 794;
-                const A4_HEIGHT = 1123;
-
-                const canvas = await html2canvas(captureArea, {
-                    scale: 3, // Ultra-high resolution for perfect print quality
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#ffffff',
-                    width: A4_WIDTH,
-                    height: A4_HEIGHT,
-                    windowWidth: A4_WIDTH,
-                    windowHeight: A4_HEIGHT,
-                    onclone: (clonedDoc) => {
-                        // Fix for mobile devices where the preview is scaled down via CSS
-                        const clonedArea = clonedDoc.getElementById('capture-area');
-                        if (clonedArea) {
-                            clonedArea.style.transform = 'none';
-                            clonedArea.style.margin = '0';
-                            clonedArea.style.width = '210mm';
-                            clonedArea.style.height = '297mm';
-                            clonedArea.style.boxShadow = 'none';
-                        }
-                    }
+                // Fetch the High-Res Image from the Puppeteer server API
+                const response = await fetch('/api/image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
                 
-                const image = canvas.toDataURL('image/png', 1.0);
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('API Error:', errorText);
+                    throw new Error('Image generation failed on server.');
+                }
+                
+                // Convert the response to a Blob and trigger download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = image;
+                a.href = url;
                 const safeName = (document.getElementById('input-student-name').value || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
                 a.download = `CoverPage_${safeName}.png`;
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
+                window.URL.revokeObjectURL(url);
 
                 showToast('Cover Page Saved as Image!');
                 if (typeof confetti === 'function') {
@@ -645,6 +632,17 @@ document.addEventListener('DOMContentLoaded', () => {
             logoInput.value = '';
             showToast('Selected Default Logo');
         });
+    }
+    // --- Mobile Header Scroll Effect ---
+    const mainHeader = document.querySelector('.main-header');
+    if (mainHeader) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                mainHeader.classList.add('header-scrolled');
+            } else {
+                mainHeader.classList.remove('header-scrolled');
+            }
+        }, { passive: true });
     }
 
     // --- Mobile Hamburger Menu ---

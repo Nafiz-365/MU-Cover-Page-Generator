@@ -138,6 +138,17 @@
     animation-delay: 0.6s;
 }
 
+/* Sidebar Footer */
+.sidebar-footer {
+    justify-content: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+[data-theme="light"] .sidebar-footer {
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -165,6 +176,7 @@ body {
     top: 0;
     z-index: 100;
     border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 
@@ -1253,8 +1265,64 @@ select:focus {
         /* Force compact height */
         align-items: center;
     }
+    
+    /* Hide desktop branding snippet inside header on mobile */
+    .main-header .creator-info {
+        display: none !important;
+    }
+    
+    /* Floating Glass Island Effect */
+    .main-header {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        width: calc(100% - 30px);
+        border-radius: 20px;
+        padding: 0.6rem 1rem;
+        background-color: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="light"] .main-header {
+        background-color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
 
-    /* Mobile Menu Button - Left Side */
+    /* Scroll Shrink State */
+    .main-header.header-scrolled {
+        top: 5px;
+        padding: 0.4rem 1rem;
+        background-color: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    [data-theme="light"] .main-header.header-scrolled {
+        background-color: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* Adjust logo inside island */
+    .header-logo {
+        gap: 0.8rem;
+    }
+    .header-logo img {
+        height: 28px;
+        transition: height 0.3s ease;
+    }
+    .header-scrolled .header-logo img {
+        height: 22px;
+    }
+    .header-text h1 {
+        font-size: 13px;
+        transition: font-size 0.3s ease;
+    }
+    .header-scrolled .header-text h1 {
+        font-size: 11px;
+    }
+
+    /* Mobile Menu Button - Right Side */
     .mobile-menu-btn {
         display: block;
         background: none;
@@ -1263,8 +1331,8 @@ select:focus {
         cursor: pointer;
         padding: 4px;
         position: absolute;
-        left: 0.75rem;
-        /* Left side */
+        right: 0.75rem;
+        /* Right side */
         top: 50%;
         transform: translateY(-50%);
         /* Restore vertical centering */
@@ -1345,7 +1413,7 @@ select:focus {
 
         /* Floating Dropdown Design */
         position: absolute;
-        top: 100%;
+        top: calc(100% + 10px);
         left: 0;
         right: 0;
 
