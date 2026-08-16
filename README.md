@@ -3,11 +3,13 @@
 A professional, high-fidelity cover page generator for Metropolitan University students. Featuring a real-time preview, dark mode, and high-quality server-side PDF exports.
 
 ### 🔗 Live Preview
+
 🚀 **[Try it out here!](https://mu-cover-page-generator.vercel.app/)**
 
 ---
 
 ## ✨ Features
+
 - **Perfect PDF Exports**: Generates identical, A4-perfect PDFs on both mobile and desktop without layout shifts.
 - **Auto-Persist**: Your details are automatically saved in the browser so you don't have to type them twice.
 - **Dynamic Themes**: Sleek, modern, and eye-friendly dark mode included.
@@ -25,6 +27,7 @@ npm run dev
 Then open `http://localhost:3000` in your browser.
 
 ## 🛠️ Tech Stack
+
 - **Frontend:** HTML5, CSS3, Vanilla JavaScript
 - **Backend:** Vercel Serverless Functions
 - **PDF Engine:** Puppeteer Core & Sparticuz Chromium

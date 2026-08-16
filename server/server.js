@@ -12,49 +12,66 @@ const ROOT = path.resolve(__dirname, '..');
 // file:// URLs are blocked in page.setContent() context by Chromium security
 let DEFAULT_LOGO_B64 = '';
 try {
-  const buf = require('fs').readFileSync(path.join(ROOT, 'assets', 'logo.png'));
-  DEFAULT_LOGO_B64 = `data:image/png;base64,${buf.toString('base64')}`;
-  console.log('[Startup] Default logo loaded, size:', DEFAULT_LOGO_B64.length);
+    const buf = require('fs').readFileSync(
+        path.join(ROOT, 'assets', 'logo.png'),
+    );
+    DEFAULT_LOGO_B64 = `data:image/png;base64,${buf.toString('base64')}`;
+    console.log(
+        '[Startup] Default logo loaded, size:',
+        DEFAULT_LOGO_B64.length,
+    );
 } catch (e) {
-  console.error('[Startup] Failed to load default logo:', e.message);
+    console.error('[Startup] Failed to load default logo:', e.message);
 }
 
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(ROOT));
 
 function escapeHtml(str = '') {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
 }
 
 function buildCaptureAreaHtml(data) {
-  const mode = data?.mode === 'lab' ? 'lab' : 'assignment';
-  const modeTitle = mode === 'lab' ? 'LAB REPORT NO-' : 'ASSIGNMENT NO-';
-  const onLabel = mode === 'lab' ? 'Experiment on' : 'Assignment on';
+    const mode = data?.mode === 'lab' ? 'lab' : 'assignment';
+    const modeTitle = mode === 'lab' ? 'LAB REPORT NO-' : 'ASSIGNMENT NO-';
+    const onLabel = mode === 'lab' ? 'Experiment on' : 'Assignment on';
 
-  let displayDate = data?.submissionDate || '';
-  if (displayDate) {
-    const d = new Date(displayDate);
-    if (!isNaN(d)) {
-      displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    let displayDate = data?.submissionDate || '';
+    if (displayDate) {
+        const d = new Date(displayDate);
+        if (!isNaN(d)) {
+            displayDate = d.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            });
+        }
     }
-  }
 
-  const teacherDept = data?.teacherDept ? `Department of ${data.teacherDept}` : 'Department of ...';
-  const studentDept = data?.studentDept ? `Department of ${data.studentDept}` : 'Department of ...';
-  const sectionLine = data?.studentSection ? `<p class="section">Section: <span>${escapeHtml(data.studentSection)}</span></p>` : '';
-  const batchLine = data?.studentBatch ? `<p class="batch">Batch: <span id="view-student-batch">${escapeHtml(data.studentBatch)}</span></p>` : '<p class="batch">Batch: <span id="view-student-batch">...</span></p>';
+    const teacherDept = data?.teacherDept
+        ? `Department of ${data.teacherDept}`
+        : 'Department of ...';
+    const studentDept = data?.studentDept
+        ? `Department of ${data.studentDept}`
+        : 'Department of ...';
+    const sectionLine = data?.studentSection
+        ? `<p class="section">Section: <span>${escapeHtml(data.studentSection)}</span></p>`
+        : '';
+    const batchLine = data?.studentBatch
+        ? `<p class="batch">Batch: <span id="view-student-batch">${escapeHtml(data.studentBatch)}</span></p>`
+        : '<p class="batch">Batch: <span id="view-student-batch">...</span></p>';
 
-  let logoSrc = data?.logoDataUrl;
-  if (!logoSrc || !logoSrc.startsWith('data:')) {
-    logoSrc = DEFAULT_LOGO_B64;
-  }
+    let logoSrc = data?.logoDataUrl;
+    if (!logoSrc || !logoSrc.startsWith('data:')) {
+        logoSrc = DEFAULT_LOGO_B64;
+    }
 
-  return `
+    return `
   <div id="capture-area" class="a4-page ${escapeHtml(data?.template || 'template-classic')} ${escapeHtml(data?.font || 'font-classic')}">
     <div class="preview-header">
       <!-- LOGO: src written directly, NOT through escapeHtml to avoid corrupting base64 -->
@@ -111,12 +128,12 @@ function buildCaptureAreaHtml(data) {
 }
 
 async function buildPdfHtml(data) {
-  const css = await fs.readFile(path.join(ROOT, 'style.css'), 'utf8');
-  const accentColor = data?.accentColor || '#2563eb';
-  const accentRgb = data?.accentRgb || '37, 99, 235';
+    const css = await fs.readFile(path.join(ROOT, 'style.css'), 'utf8');
+    const accentColor = data?.accentColor || '#2563eb';
+    const accentRgb = data?.accentRgb || '37, 99, 235';
 
-  // Force "desktop-like" styling: disable responsive scaling rules for PDF
-  const pdfOnlyCss = `
+    // Force "desktop-like" styling: disable responsive scaling rules for PDF
+    const pdfOnlyCss = `
     :root { 
       --accent-color: ${accentColor}; 
       --accent-blue: ${accentColor}; 
@@ -144,9 +161,9 @@ async function buildPdfHtml(data) {
     @page { size: A4; margin: 0; }
   `;
 
-  const captureArea = buildCaptureAreaHtml(data);
+    const captureArea = buildCaptureAreaHtml(data);
 
-  return `<!doctype html>
+    return `<!doctype html>
   <html>
   <head>
     <meta charset="utf-8" />
@@ -164,135 +181,168 @@ async function buildPdfHtml(data) {
 }
 
 app.post('/api/pdf', async (req, res) => {
-  const data = {
-    ...(req.body || {}),
-    baseUrl: `http://localhost:${PORT}/`,
-  };
-  let browser;
-  try {
-    const html = await buildPdfHtml(data);
-
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const page = await browser.newPage();
-
-    // Stable viewport; actual PDF size is controlled by page.pdf(format:A4)
-    await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-    await page.emulateMediaType('screen');
-    
+    const data = {
+        ...(req.body || {}),
+        baseUrl: `http://localhost:${PORT}/`,
+    };
+    let browser;
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 4000 });
-    } catch (e) {
-      console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
-    }
+        const html = await buildPdfHtml(data);
 
-    // Ensure fonts and images are ready before PDF
-    await page.evaluate(async () => {
-      // eslint-disable-next-line no-undef
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
-
-      const imgs = Array.from(document.querySelectorAll('img'));
-      await Promise.all(imgs.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
+        browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
-      }));
-    });
+        const page = await browser.newPage();
 
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 }
-    });
+        // Stable viewport; actual PDF size is controlled by page.pdf(format:A4)
+        await page.setViewport({
+            width: 794,
+            height: 1123,
+            deviceScaleFactor: 2,
+        });
+        await page.emulateMediaType('screen');
 
-    const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Length', pdf.length);
-    res.setHeader('Content-Disposition', `attachment; filename="CoverPage_${safeName}.pdf"`);
-    res.end(pdf);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'PDF_GENERATION_FAILED' });
-  } finally {
-    try {
-      if (browser) await browser.close();
-    } catch {
-      // ignore
+        try {
+            await page.setContent(html, {
+                waitUntil: 'networkidle0',
+                timeout: 4000,
+            });
+        } catch (e) {
+            console.log(
+                `setContent networkidle0 timed out: ${e.message}. Proceeding...`,
+            );
+        }
+
+        // Ensure fonts and images are ready before PDF
+        await page.evaluate(async () => {
+            // eslint-disable-next-line no-undef
+            if (document.fonts && document.fonts.ready)
+                await document.fonts.ready;
+
+            const imgs = Array.from(document.querySelectorAll('img'));
+            await Promise.all(
+                imgs.map((img) => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }),
+            );
+        });
+
+        const pdf = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: 0, right: 0, bottom: 0, left: 0 },
+        });
+
+        const safeName = String(data?.studentName || 'Student')
+            .replace(/[^\w\-]+/g, '_')
+            .slice(0, 40);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Length', pdf.length);
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="CoverPage_${safeName}.pdf"`,
+        );
+        res.end(pdf);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'PDF_GENERATION_FAILED' });
+    } finally {
+        try {
+            if (browser) await browser.close();
+        } catch {
+            // ignore
+        }
     }
-  }
 });
 
 app.post('/api/image', async (req, res) => {
-  const data = {
-    ...(req.body || {}),
-    baseUrl: `http://localhost:${PORT}/`,
-  };
-  let browser;
-  try {
-    const html = await buildPdfHtml(data);
-
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const page = await browser.newPage();
-
-    // Stable viewport; exact A4 size scaled up to 3x Retina resolution
-    await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 3 });
-    await page.emulateMediaType('screen');
-    
+    const data = {
+        ...(req.body || {}),
+        baseUrl: `http://localhost:${PORT}/`,
+    };
+    let browser;
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 4000 });
-    } catch (e) {
-      console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
-    }
+        const html = await buildPdfHtml(data);
 
-    // Ensure fonts and images are ready before taking screenshot
-    await page.evaluate(async () => {
-      // eslint-disable-next-line no-undef
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
-
-      const imgs = Array.from(document.querySelectorAll('img'));
-      await Promise.all(imgs.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
+        browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
-      }));
-    });
+        const page = await browser.newPage();
 
-    const imageBuffer = await page.screenshot({
-      type: 'png',
-      fullPage: true,
-      omitBackground: false
-    });
+        // Stable viewport; exact A4 size scaled up to 3x Retina resolution
+        await page.setViewport({
+            width: 794,
+            height: 1123,
+            deviceScaleFactor: 3,
+        });
+        await page.emulateMediaType('screen');
 
-    const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Length', imageBuffer.length);
-    res.setHeader('Content-Disposition', `attachment; filename="CoverPage_${safeName}.png"`);
-    res.end(imageBuffer);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'IMAGE_GENERATION_FAILED' });
-  } finally {
-    try {
-      if (browser) await browser.close();
-    } catch {
-      // ignore
+        try {
+            await page.setContent(html, {
+                waitUntil: 'networkidle0',
+                timeout: 4000,
+            });
+        } catch (e) {
+            console.log(
+                `setContent networkidle0 timed out: ${e.message}. Proceeding...`,
+            );
+        }
+
+        // Ensure fonts and images are ready before taking screenshot
+        await page.evaluate(async () => {
+            // eslint-disable-next-line no-undef
+            if (document.fonts && document.fonts.ready)
+                await document.fonts.ready;
+
+            const imgs = Array.from(document.querySelectorAll('img'));
+            await Promise.all(
+                imgs.map((img) => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }),
+            );
+        });
+
+        const imageBuffer = await page.screenshot({
+            type: 'png',
+            fullPage: true,
+            omitBackground: false,
+        });
+
+        const safeName = String(data?.studentName || 'Student')
+            .replace(/[^\w\-]+/g, '_')
+            .slice(0, 40);
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Length', imageBuffer.length);
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="CoverPage_${safeName}.png"`,
+        );
+        res.end(imageBuffer);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'IMAGE_GENERATION_FAILED' });
+    } finally {
+        try {
+            if (browser) await browser.close();
+        } catch {
+            // ignore
+        }
     }
-  }
 });
 
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Cover Page Generator running on http://localhost:${PORT}`);
+    // eslint-disable-next-line no-console
+    console.log(`Cover Page Generator running on http://localhost:${PORT}`);
 });
-

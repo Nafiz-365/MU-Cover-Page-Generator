@@ -1,12 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     const APP_CONFIG = window.APP_CONFIG || {};
-    const universityLine = APP_CONFIG.universityLine || 'Metropolitan University, Sylhet';
+    const universityLine =
+        APP_CONFIG.universityLine || 'Metropolitan University, Sylhet';
 
     // Apply basic branding (optional)
     try {
-        if (APP_CONFIG.universityName) document.title = `${APP_CONFIG.universityName} - Cover Page Generator`;
-        if (APP_CONFIG.appShortName && document.getElementById('header-app-name')) {
-            document.getElementById('header-app-name').textContent = APP_CONFIG.appShortName;
+        if (APP_CONFIG.universityName)
+            document.title = `${APP_CONFIG.universityName} - Cover Page Generator`;
+        if (
+            APP_CONFIG.appShortName &&
+            document.getElementById('header-app-name')
+        ) {
+            document.getElementById('header-app-name').textContent =
+                APP_CONFIG.appShortName;
         }
         if (APP_CONFIG.logoPath) {
             const headerLogo = document.getElementById('header-logo');
@@ -30,14 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
         studentSection: document.getElementById('input-student-section'),
         studentDept: document.getElementById('input-student-dept'),
         teacherName: document.getElementById('input-teacher-name'),
-        teacherDesignation: document.getElementById('input-teacher-designation'),
+        teacherDesignation: document.getElementById(
+            'input-teacher-designation',
+        ),
         teacherDept: document.getElementById('input-teacher-dept'),
         workTitle: document.getElementById('input-work-title'),
         courseName: document.getElementById('input-course-name'),
         courseCode: document.getElementById('input-course-code'),
         workNo: document.getElementById('input-work-no'),
         submissionDate: document.getElementById('input-submission-date'),
-        universityLine: document.getElementById('input-university-line')
+        universityLine: document.getElementById('input-university-line'),
     };
 
     // Selectors - View Elements
@@ -56,14 +64,12 @@ document.addEventListener('DOMContentLoaded', () => {
         workNo: document.getElementById('view-work-no'),
         submissionDate: document.getElementById('view-submission-date'),
         universityLineTo: document.getElementById('view-university-line-to'),
-        universityLineBy: document.getElementById('view-university-line-by')
+        universityLineBy: document.getElementById('view-university-line-by'),
     };
-
-
 
     const saveData = () => {
         const data = {};
-        Object.keys(inputs).forEach(key => {
+        Object.keys(inputs).forEach((key) => {
             data[key] = inputs[key].value;
         });
         localStorage.setItem('mu_cover_data', JSON.stringify(data));
@@ -76,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('mu_theme', theme);
         if (themeToggleInput) {
-            themeToggleInput.checked = (theme === 'light');
+            themeToggleInput.checked = theme === 'light';
         }
     };
 
@@ -92,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('mu_cover_data');
         if (saved) {
             const data = JSON.parse(saved);
-            Object.keys(data).forEach(key => {
+            Object.keys(data).forEach((key) => {
                 if (inputs[key]) {
                     inputs[key].value = data[key];
                     syncView(key, data[key]);
@@ -101,9 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
-
-
     // --- Advanced Features: Subject Library ---
     const presetLibrary = document.getElementById('preset-library');
     const btnSavePreset = document.getElementById('btn-save-preset');
@@ -111,16 +114,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderPresets = () => {
         const presets = JSON.parse(localStorage.getItem('mu_presets') || '[]');
         if (presetLibrary) {
-            presetLibrary.innerHTML = presets.map(p => `
+            presetLibrary.innerHTML = presets
+                .map(
+                    (p) => `
                 <div class="preset-item" data-id="${p.id}" title="Click to load: ${p.name}">
                     ${p.name}
                     <span class="delete-preset" data-id="${p.id}" title="Delete Preset">
                         <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                     </span>
                 </div>
-            `).join('');
+            `,
+                )
+                .join('');
 
-            presetLibrary.querySelectorAll('.preset-item').forEach(item => {
+            presetLibrary.querySelectorAll('.preset-item').forEach((item) => {
                 item.addEventListener('click', (e) => {
                     const deleteBtn = e.target.closest('.delete-preset');
                     if (deleteBtn) {
@@ -149,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             teacherDept: inputs.teacherDept.value,
             studentBatch: inputs.studentBatch.value,
             studentSection: inputs.studentSection.value,
-            studentDept: inputs.studentDept.value
+            studentDept: inputs.studentDept.value,
         };
         const presets = JSON.parse(localStorage.getItem('mu_presets') || '[]');
         presets.push(preset);
@@ -160,9 +167,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const loadPreset = (id) => {
         const presets = JSON.parse(localStorage.getItem('mu_presets') || '[]');
-        const preset = presets.find(p => p.id == id);
+        const preset = presets.find((p) => p.id == id);
         if (preset) {
-            Object.keys(preset).forEach(key => {
+            Object.keys(preset).forEach((key) => {
                 if (inputs[key]) {
                     inputs[key].value = preset[key];
                     syncView(key, preset[key]);
@@ -175,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const deletePreset = (id) => {
         let presets = JSON.parse(localStorage.getItem('mu_presets') || '[]');
-        presets = presets.filter(p => p.id != id);
+        presets = presets.filter((p) => p.id != id);
         localStorage.setItem('mu_presets', JSON.stringify(presets));
         renderPresets();
         showToast('Preset Deleted');
@@ -185,7 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const captureArea = document.getElementById('capture-area');
 
     const setTemplate = (template) => {
-        const templates = ['template-classic', 'template-minimal', 'template-modern', 'template-bordered', 'template-tech', 'template-thesis', 'template-cards', 'template-stripe'];
+        const templates = [
+            'template-classic',
+            'template-minimal',
+            'template-modern',
+            'template-bordered',
+            'template-tech',
+            'template-thesis',
+            'template-cards',
+            'template-stripe',
+        ];
         captureArea.classList.remove(...templates);
         if (template) {
             captureArea.classList.add(template);
@@ -198,7 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load saved template
-    const savedTemplate = localStorage.getItem('mu_template') || 'template-classic';
+    const savedTemplate =
+        localStorage.getItem('mu_template') || 'template-classic';
     if (selectTemplate) {
         selectTemplate.value = savedTemplate;
         setTemplate(savedTemplate);
@@ -208,7 +225,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectFont = document.getElementById('select-font');
 
     const setFont = (fontClass) => {
-        const fonts = ['font-classic', 'font-sans', 'font-modern', 'font-serif', 'font-mono', 'font-montserrat', 'font-playfair', 'font-oswald'];
+        const fonts = [
+            'font-classic',
+            'font-sans',
+            'font-modern',
+            'font-serif',
+            'font-mono',
+            'font-montserrat',
+            'font-playfair',
+            'font-oswald',
+        ];
         captureArea.classList.remove(...fonts);
 
         // Add new class
@@ -236,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset Form
     document.getElementById('btn-reset')?.addEventListener('click', () => {
         if (confirm('Are you sure you want to clear all data?')) {
-            Object.keys(inputs).forEach(key => {
+            Object.keys(inputs).forEach((key) => {
                 inputs[key].value = '';
                 syncView(key, '');
             });
@@ -302,23 +328,40 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === 'teacherDept') {
             updateElement(views.teacherDept, `Department of ${value || '...'}`);
         } else if (key === 'studentSection') {
-            const container = document.getElementById('view-student-section-container');
+            const container = document.getElementById(
+                'view-student-section-container',
+            );
             if (container) container.style.display = value ? 'block' : 'none';
             updateElement(views.studentSection, value);
         } else if (key === 'universityLine') {
-            updateElement(views.universityLineTo, value || APP_CONFIG.universityLine || 'Metropolitan University, Sylhet');
-            updateElement(views.universityLineBy, value || APP_CONFIG.universityLine || 'Metropolitan University, Sylhet');
+            updateElement(
+                views.universityLineTo,
+                value ||
+                    APP_CONFIG.universityLine ||
+                    'Metropolitan University, Sylhet',
+            );
+            updateElement(
+                views.universityLineBy,
+                value ||
+                    APP_CONFIG.universityLine ||
+                    'Metropolitan University, Sylhet',
+            );
         } else if (views[key]) {
             let fallback = '.........................';
             if (key === 'studentName') fallback = 'Student Name';
             else if (key === 'teacherName') fallback = "Teacher's Name";
-            else if (key === 'workTitle') fallback = '.........................';
+            else if (key === 'workTitle')
+                fallback = '.........................';
 
             let displayValue = value;
             if (key === 'submissionDate' && value) {
                 const dateObj = new Date(value);
                 if (!isNaN(dateObj)) {
-                    displayValue = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+                    displayValue = dateObj.toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                    });
                 }
             }
 
@@ -327,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Attach listeners
-    Object.keys(inputs).forEach(key => {
+    Object.keys(inputs).forEach((key) => {
         inputs[key].addEventListener('input', (e) => {
             syncView(key, e.target.value);
             saveData();
@@ -335,7 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Special case for workNo because of innerHTML in updateMode
             if (key === 'workNo') {
                 const viewWorkNo = document.getElementById('view-work-no');
-                if (viewWorkNo) viewWorkNo.textContent = e.target.value || '...';
+                if (viewWorkNo)
+                    viewWorkNo.textContent = e.target.value || '...';
             }
         });
     });
@@ -370,7 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     };
 
-
     const getAccentRgb = (hex) => {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result
@@ -389,14 +432,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 reader.onload = () => resolve(reader.result);
                 reader.readAsDataURL(blob);
             });
-        } catch { return null; }
+        } catch {
+            return null;
+        }
     };
 
     const buildPayload = async () => {
         const logoEl = document.querySelector('.preview-logo');
         const logoDataUrl = await getLogoAsBase64(logoEl);
         return {
-            mode: btnLabReport?.classList.contains('active') ? 'lab' : 'assignment',
+            mode: btnLabReport?.classList.contains('active')
+                ? 'lab'
+                : 'assignment',
             studentName: inputs.studentName.value,
             studentId: inputs.studentId.value,
             studentBatch: inputs.studentBatch.value,
@@ -413,9 +460,11 @@ document.addEventListener('DOMContentLoaded', () => {
             template: localStorage.getItem('mu_template') || 'template-classic',
             font: localStorage.getItem('mu_font') || 'font-classic',
             accentColor: localStorage.getItem('mu_accent_color') || '#2563eb',
-            accentRgb: getAccentRgb(localStorage.getItem('mu_accent_color') || '#2563eb'),
+            accentRgb: getAccentRgb(
+                localStorage.getItem('mu_accent_color') || '#2563eb',
+            ),
             logoDataUrl,
-            universityLine
+            universityLine,
         };
     };
 
@@ -428,11 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const requiredFields = [
                 { id: 'input-student-name', name: 'Student Name' },
                 { id: 'input-work-title', name: 'Work Title' },
-                { id: 'input-student-id', name: 'Student ID' }
+                { id: 'input-student-id', name: 'Student ID' },
             ];
 
             let firstError = null;
-            requiredFields.forEach(field => {
+            requiredFields.forEach((field) => {
                 const el = document.getElementById(field.id);
                 if (!el || !el.value.trim()) {
                     el?.classList.add('error-shake');
@@ -457,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resp = await fetch('/api/pdf', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
                 });
                 const contentType = resp.headers.get('Content-Type');
                 if (!resp.ok) {
@@ -465,20 +514,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     try {
                         const errData = await resp.json();
                         if (errData.message) errorMsg = errData.message;
-                    } catch { /* ignore parse error */ }
+                    } catch {
+                        /* ignore parse error */
+                    }
                     throw new Error(errorMsg);
                 }
 
                 // Safety check: If it's not a PDF (e.g. Vercel timeout HTML), don't download
                 if (contentType && !contentType.includes('application/pdf')) {
-                    throw new Error('Server returned an invalid file format (likely a timeout). Please try again.');
+                    throw new Error(
+                        'Server returned an invalid file format (likely a timeout). Please try again.',
+                    );
                 }
 
                 const blob = await resp.blob();
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                const safeName = (inputs.studentName.value || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
+                const safeName = (inputs.studentName.value || 'Student')
+                    .replace(/[^\w\-]+/g, '_')
+                    .slice(0, 40);
                 a.download = `CoverPage_${safeName}.pdf`;
                 document.body.appendChild(a);
                 a.click();
@@ -494,7 +549,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         particleCount: 150,
                         spread: 70,
                         origin: { y: 0.6 },
-                        colors: ['#4ecdc4', '#ff6b6b', '#4f46e5', '#f59e0b', '#10b981']
+                        colors: [
+                            '#4ecdc4',
+                            '#ff6b6b',
+                            '#4f46e5',
+                            '#f59e0b',
+                            '#10b981',
+                        ],
                     });
                 }
                 return;
@@ -517,11 +578,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const requiredFields = [
                 { id: 'input-student-name', name: 'Student Name' },
                 { id: 'input-work-title', name: 'Work Title' },
-                { id: 'input-student-id', name: 'Student ID' }
+                { id: 'input-student-id', name: 'Student ID' },
             ];
 
             let firstError = null;
-            requiredFields.forEach(field => {
+            requiredFields.forEach((field) => {
                 const el = document.getElementById(field.id);
                 if (!el || !el.value.trim()) {
                     el?.classList.add('error-shake');
@@ -541,26 +602,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const payload = await buildPayload();
-                
+
                 // Fetch the High-Res Image from the Puppeteer server API
                 const response = await fetch('/api/image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
                 });
-                
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error('API Error:', errorText);
                     throw new Error('Image generation failed on server.');
                 }
-                
+
                 // Convert the response to a Blob and trigger download
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                const safeName = (document.getElementById('input-student-name').value || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
+                const safeName = (
+                    document.getElementById('input-student-name').value ||
+                    'Student'
+                )
+                    .replace(/[^\w\-]+/g, '_')
+                    .slice(0, 40);
                 a.download = `CoverPage_${safeName}.png`;
                 document.body.appendChild(a);
                 a.click();
@@ -573,7 +639,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         particleCount: 150,
                         spread: 70,
                         origin: { y: 0.6 },
-                        colors: ['#4ecdc4', '#ff6b6b', '#4f46e5', '#f59e0b', '#10b981']
+                        colors: [
+                            '#4ecdc4',
+                            '#ff6b6b',
+                            '#4f46e5',
+                            '#f59e0b',
+                            '#10b981',
+                        ],
                     });
                 }
             } catch (e) {
@@ -586,8 +658,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -636,13 +706,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Mobile Header Scroll Effect ---
     const mainHeader = document.querySelector('.main-header');
     if (mainHeader) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 10) {
-                mainHeader.classList.add('header-scrolled');
-            } else {
-                mainHeader.classList.remove('header-scrolled');
-            }
-        }, { passive: true });
+        window.addEventListener(
+            'scroll',
+            () => {
+                if (window.scrollY > 10) {
+                    mainHeader.classList.add('header-scrolled');
+                } else {
+                    mainHeader.classList.remove('header-scrolled');
+                }
+            },
+            { passive: true },
+        );
     }
 
     // --- Mobile Hamburger Menu ---
@@ -652,17 +726,25 @@ document.addEventListener('DOMContentLoaded', () => {
     if (menuBtn && mobileMenu) {
         // Toggle Menu Function
         const toggleMenu = (forceClose = false) => {
-            const isOpened = forceClose ? false : mobileMenu.classList.toggle('show-menu');
+            const isOpened = forceClose
+                ? false
+                : mobileMenu.classList.toggle('show-menu');
             if (forceClose) mobileMenu.classList.remove('show-menu');
 
             const iconPath = menuBtn.querySelector('path');
             if (isOpened) {
                 // Close (X) Icon
-                iconPath.setAttribute('d', 'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z');
+                iconPath.setAttribute(
+                    'd',
+                    'M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z',
+                );
                 menuBtn.setAttribute('aria-label', 'Close Menu');
             } else {
                 // Menu (Bars) Icon
-                iconPath.setAttribute('d', 'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z');
+                iconPath.setAttribute(
+                    'd',
+                    'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z',
+                );
                 menuBtn.setAttribute('aria-label', 'Open Menu');
             }
         };
@@ -674,9 +756,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Close when clicking outside
         document.addEventListener('click', (e) => {
-            if (mobileMenu.classList.contains('show-menu') &&
+            if (
+                mobileMenu.classList.contains('show-menu') &&
                 !mobileMenu.contains(e.target) &&
-                !menuBtn.contains(e.target)) {
+                !menuBtn.contains(e.target)
+            ) {
                 toggleMenu(true); // Force close
             }
         });
@@ -689,8 +773,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const hexToRgb = (hex) => {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ?
-            `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+        return result
+            ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+            : null;
     };
 
     const setAccentColor = (color) => {
@@ -704,18 +789,20 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('mu_accent_color', color);
 
         // Update dots UI
-        colorDots.forEach(dot => {
+        colorDots.forEach((dot) => {
             if (dot.dataset.color === color) dot.classList.add('active');
             else dot.classList.remove('active');
         });
         if (customColorInput) customColorInput.value = color;
     };
 
-    colorDots.forEach(dot => {
+    colorDots.forEach((dot) => {
         dot.addEventListener('click', () => setAccentColor(dot.dataset.color));
     });
 
-    customColorInput?.addEventListener('input', (e) => setAccentColor(e.target.value));
+    customColorInput?.addEventListener('input', (e) =>
+        setAccentColor(e.target.value),
+    );
 
     // Load saved accent
     const savedAccent = localStorage.getItem('mu_accent_color') || '#2563eb';
@@ -723,15 +810,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Advanced UX: Smart Input Intelligence ---
     const toTitleCase = (str) => {
-        return str.replace(/\b\w/g, l => l.toUpperCase());
+        return str.replace(/\b\w/g, (l) => l.toUpperCase());
     };
 
     const kebabToCamel = (str) => {
-        return str.replace(/-([a-z])/g, g => g[1].toUpperCase());
+        return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
     };
 
-    const smartInputs = ['input-student-name', 'input-teacher-name', 'input-work-title', 'input-course-name'];
-    smartInputs.forEach(id => {
+    const smartInputs = [
+        'input-student-name',
+        'input-teacher-name',
+        'input-work-title',
+        'input-course-name',
+    ];
+    smartInputs.forEach((id) => {
         const el = document.getElementById(id);
         el?.addEventListener('blur', (e) => {
             const val = e.target.value;
@@ -753,7 +845,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     courseCodeInput?.addEventListener('blur', () => {
         const code = courseCodeInput.value.toUpperCase().trim();
-        const memory = JSON.parse(localStorage.getItem('mu_course_memory') || '{}');
+        const memory = JSON.parse(
+            localStorage.getItem('mu_course_memory') || '{}',
+        );
         if (code && memory[code] && !courseNameInput.value) {
             courseNameInput.value = memory[code];
             syncView('courseName', memory[code]);
@@ -765,7 +859,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const code = courseCodeInput.value.toUpperCase().trim();
         const name = courseNameInput.value.trim();
         if (code && name) {
-            const memory = JSON.parse(localStorage.getItem('mu_course_memory') || '{}');
+            const memory = JSON.parse(
+                localStorage.getItem('mu_course_memory') || '{}',
+            );
             memory[code] = name;
             localStorage.setItem('mu_course_memory', JSON.stringify(memory));
         }
@@ -775,8 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewContainer = document.getElementById('capture-area');
     if (previewContainer) {
         // Add visual hint (tooltips)
-        const editableElements = previewContainer.querySelectorAll('[id^="view-"]');
-        editableElements.forEach(el => {
+        const editableElements =
+            previewContainer.querySelectorAll('[id^="view-"]');
+        editableElements.forEach((el) => {
             el.setAttribute('title', 'Click to edit in sidebar');
             el.classList.add('clickable-view');
         });
@@ -790,10 +887,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const inputEl = document.getElementById(inputId);
 
                 if (inputEl) {
-                    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    inputEl.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
                     inputEl.focus();
                     inputEl.classList.add('input-highlight');
-                    setTimeout(() => inputEl.classList.remove('input-highlight'), 1500);
+                    setTimeout(
+                        () => inputEl.classList.remove('input-highlight'),
+                        1500,
+                    );
                 }
             }
         });

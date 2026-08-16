@@ -7,38 +7,50 @@ const puppeteer = require('puppeteer-core');
 const ROOT = path.resolve(__dirname, '..');
 
 function escapeHtml(str = '') {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
 }
 
 function buildCaptureAreaHtml(data, defaultLogoB64) {
-  const mode = data?.mode === 'lab' ? 'lab' : 'assignment';
-  const modeTitle = mode === 'lab' ? 'LAB REPORT NO-' : 'ASSIGNMENT NO-';
-  const onLabel = mode === 'lab' ? 'Experiment on' : 'Assignment on';
+    const mode = data?.mode === 'lab' ? 'lab' : 'assignment';
+    const modeTitle = mode === 'lab' ? 'LAB REPORT NO-' : 'ASSIGNMENT NO-';
+    const onLabel = mode === 'lab' ? 'Experiment on' : 'Assignment on';
 
-  let displayDate = data?.submissionDate || '';
-  if (displayDate) {
-    const d = new Date(displayDate);
-    if (!isNaN(d)) {
-      displayDate = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    let displayDate = data?.submissionDate || '';
+    if (displayDate) {
+        const d = new Date(displayDate);
+        if (!isNaN(d)) {
+            displayDate = d.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+            });
+        }
     }
-  }
 
-  const teacherDept = data?.teacherDept ? `Department of ${data.teacherDept}` : 'Department of ...';
-  const studentDept = data?.studentDept ? `Department of ${data.studentDept}` : 'Department of ...';
-  const sectionLine = data?.studentSection ? `<p class="section">Section: <span>${escapeHtml(data.studentSection)}</span></p>` : '';
-  const batchLine = data?.studentBatch ? `<p class="batch">Batch: <span id="view-student-batch">${escapeHtml(data.studentBatch)}</span></p>` : '<p class="batch">Batch: <span id="view-student-batch">...</span></p>';
+    const teacherDept = data?.teacherDept
+        ? `Department of ${data.teacherDept}`
+        : 'Department of ...';
+    const studentDept = data?.studentDept
+        ? `Department of ${data.studentDept}`
+        : 'Department of ...';
+    const sectionLine = data?.studentSection
+        ? `<p class="section">Section: <span>${escapeHtml(data.studentSection)}</span></p>`
+        : '';
+    const batchLine = data?.studentBatch
+        ? `<p class="batch">Batch: <span id="view-student-batch">${escapeHtml(data.studentBatch)}</span></p>`
+        : '<p class="batch">Batch: <span id="view-student-batch">...</span></p>';
 
-  let logoSrc = data?.logoDataUrl;
-  if (!logoSrc || !logoSrc.startsWith('data:')) {
-    logoSrc = defaultLogoB64;
-  }
+    let logoSrc = data?.logoDataUrl;
+    if (!logoSrc || !logoSrc.startsWith('data:')) {
+        logoSrc = defaultLogoB64;
+    }
 
-  return `
+    return `
   <div id="capture-area" class="a4-page ${escapeHtml(data?.template || 'template-classic')} ${escapeHtml(data?.font || 'font-classic')}">
     <div class="preview-header">
       <img src="${logoSrc}" alt="Logo" class="preview-logo">
@@ -94,23 +106,25 @@ function buildCaptureAreaHtml(data, defaultLogoB64) {
 }
 
 async function buildPdfHtml(data) {
-  // Use relative path for Vercel
-  const cssPath = path.join(process.cwd(), 'style.css');
-  const css = await fs.readFile(cssPath, 'utf8');
-  
-  // Default Logo
-  let defaultLogoB64 = '';
-  try {
-    const logoBuf = await fs.readFile(path.join(process.cwd(), 'assets', 'logo.png'));
-    defaultLogoB64 = `data:image/png;base64,${logoBuf.toString('base64')}`;
-  } catch (e) {
-    console.error('Failed to load default logo in API:', e.message);
-  }
+    // Use relative path for Vercel
+    const cssPath = path.join(process.cwd(), 'style.css');
+    const css = await fs.readFile(cssPath, 'utf8');
 
-  const accentColor = data?.accentColor || '#2563eb';
-  const accentRgb = data?.accentRgb || '37, 99, 235';
+    // Default Logo
+    let defaultLogoB64 = '';
+    try {
+        const logoBuf = await fs.readFile(
+            path.join(process.cwd(), 'assets', 'logo.png'),
+        );
+        defaultLogoB64 = `data:image/png;base64,${logoBuf.toString('base64')}`;
+    } catch (e) {
+        console.error('Failed to load default logo in API:', e.message);
+    }
 
-  const pdfOnlyCss = `
+    const accentColor = data?.accentColor || '#2563eb';
+    const accentRgb = data?.accentRgb || '37, 99, 235';
+
+    const pdfOnlyCss = `
     :root { 
       --accent-color: ${accentColor}; 
       --accent-blue: ${accentColor}; 
@@ -135,9 +149,9 @@ async function buildPdfHtml(data) {
     @page { size: A4; margin: 0; }
   `;
 
-  const captureArea = buildCaptureAreaHtml(data, defaultLogoB64);
+    const captureArea = buildCaptureAreaHtml(data, defaultLogoB64);
 
-  return `<!doctype html>
+    return `<!doctype html>
   <html>
   <head>
     <meta charset="utf-8" />
@@ -153,74 +167,100 @@ async function buildPdfHtml(data) {
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
 
-  const data = req.body || {};
-  let browser;
+    const data = req.body || {};
+    let browser;
 
-  try {
-    const html = await buildPdfHtml(data);
-
-    // Vercel specific puppeteer launch
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-    });
-
-    const startTime = Date.now();
-    console.log('PDF Generation Started');
-
-    const page = await browser.newPage();
-    await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
-    await page.emulateMediaType('screen');
-    
     try {
-      await page.setContent(html, { waitUntil: 'networkidle0', timeout: 4000 });
-    } catch (e) {
-      console.log(`setContent networkidle0 timed out: ${e.message}. Proceeding...`);
-    }
+        const html = await buildPdfHtml(data);
 
-    console.log(`Content set in ${Date.now() - startTime}ms. Waiting for fonts/images...`);
-
-    await page.evaluate(async () => {
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      const imgs = Array.from(document.querySelectorAll('img'));
-      await Promise.all(imgs.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise((resolve) => {
-          img.onload = resolve;
-          img.onerror = resolve;
+        // Vercel specific puppeteer launch
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
         });
-      }));
-    });
 
-    console.log(`Evaluated in ${Date.now() - startTime}ms. Generating PDF...`);
+        const startTime = Date.now();
+        console.log('PDF Generation Started');
 
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: { top: 0, right: 0, bottom: 0, left: 0 }
-    });
+        const page = await browser.newPage();
+        await page.setViewport({
+            width: 794,
+            height: 1123,
+            deviceScaleFactor: 2,
+        });
+        await page.emulateMediaType('screen');
 
-    console.log(`PDF generated in ${Date.now() - startTime}ms. Total size: ${pdf.length} bytes`);
+        try {
+            await page.setContent(html, {
+                waitUntil: 'networkidle0',
+                timeout: 4000,
+            });
+        } catch (e) {
+            console.log(
+                `setContent networkidle0 timed out: ${e.message}. Proceeding...`,
+            );
+        }
 
-    const safeName = String(data?.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Length', pdf.length);
-    res.setHeader('Content-Disposition', `attachment; filename="CoverPage_${safeName}.pdf"`);
-    res.end(pdf);
+        console.log(
+            `Content set in ${Date.now() - startTime}ms. Waiting for fonts/images...`,
+        );
 
-  } catch (err) {
-    console.error('PDF Generation Error:', err);
-    res.status(500).json({ error: 'PDF_GENERATION_FAILED', message: err.message, stack: err.stack });
-  } finally {
-    if (browser) {
-      await browser.close();
+        await page.evaluate(async () => {
+            if (document.fonts && document.fonts.ready)
+                await document.fonts.ready;
+            const imgs = Array.from(document.querySelectorAll('img'));
+            await Promise.all(
+                imgs.map((img) => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise((resolve) => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }),
+            );
+        });
+
+        console.log(
+            `Evaluated in ${Date.now() - startTime}ms. Generating PDF...`,
+        );
+
+        const pdf = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: { top: 0, right: 0, bottom: 0, left: 0 },
+        });
+
+        console.log(
+            `PDF generated in ${Date.now() - startTime}ms. Total size: ${pdf.length} bytes`,
+        );
+
+        const safeName = String(data?.studentName || 'Student')
+            .replace(/[^\w\-]+/g, '_')
+            .slice(0, 40);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Length', pdf.length);
+        res.setHeader(
+            'Content-Disposition',
+            `attachment; filename="CoverPage_${safeName}.pdf"`,
+        );
+        res.end(pdf);
+    } catch (err) {
+        console.error('PDF Generation Error:', err);
+        res.status(500).json({
+            error: 'PDF_GENERATION_FAILED',
+            message: err.message,
+            stack: err.stack,
+        });
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
     }
-  }
 };
