@@ -10,6 +10,10 @@
         {
             "source": "/api/pdf",
             "destination": "/api/pdf.js"
+        },
+        {
+            "source": "/api/image",
+            "destination": "/api/image.js"
         }
     ]
 }

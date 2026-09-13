@@ -145,6 +145,10 @@
     border-top: 1px dashed rgba(0, 0, 0, 0.1);
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -157,6 +161,9 @@ body {
     background-attachment: fixed;
     color: var(--header-text);
     min-height: 100vh;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     transition:
         background 0.3s ease,
         color 0.3s ease;

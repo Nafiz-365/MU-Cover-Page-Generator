@@ -75,6 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('mu_cover_data', JSON.stringify(data));
     };
 
+    let saveTimer = null;
+    const debouncedSaveData = () => {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(saveData, 250);
+    };
+    window.addEventListener('beforeunload', saveData);
+
     // --- Advanced Features: Themes ---
     const themeToggleInput = document.getElementById('theme-toggle-input');
 
@@ -317,10 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const syncView = (key, value) => {
         const updateElement = (el, text) => {
             if (!el) return;
-            el.textContent = text;
-            el.classList.remove('animate-text');
-            void el.offsetWidth; // Trigger reflow
-            el.classList.add('animate-text');
+            if (el.textContent !== text) {
+                el.textContent = text;
+            }
         };
 
         if (key === 'studentDept') {
@@ -373,13 +379,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.keys(inputs).forEach((key) => {
         inputs[key].addEventListener('input', (e) => {
             syncView(key, e.target.value);
-            saveData();
+            debouncedSaveData();
 
             // Special case for workNo because of innerHTML in updateMode
             if (key === 'workNo') {
                 const viewWorkNo = document.getElementById('view-work-no');
-                if (viewWorkNo)
+                if (viewWorkNo && viewWorkNo.textContent !== (e.target.value || '...')) {
                     viewWorkNo.textContent = e.target.value || '...';
+                }
             }
         });
     });
