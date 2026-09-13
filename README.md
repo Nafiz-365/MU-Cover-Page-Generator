@@ -17,17 +17,25 @@ A professional, high-fidelity cover page generator for Metropolitan University s
 
 ## 💻 Local Development
 
-Want to run the backend PDF generator locally?
+Run both the frontend (Vite) and backend (Express & Puppeteer) concurrently:
 
 ```bash
 npm install
-npm run dev
+npm run dev:all
 ```
 
-Then open `http://localhost:3000` in your browser.
+Then open `http://localhost:5173` in your browser.
+
+- **Frontend:** `http://localhost:5173`
+- **Backend API:** `http://localhost:3000`
+
+To build the frontend bundle for production:
+```bash
+npm run build
+```
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript
-- **Backend:** Vercel Serverless Functions
-- **PDF Engine:** Puppeteer Core & Sparticuz Chromium
+- **Frontend:** React 19, Tailwind CSS, Vite
+- **Backend:** Node.js Express, Vercel Serverless Functions
+- **PDF & Image Engine:** Puppeteer & Sparticuz Chromium

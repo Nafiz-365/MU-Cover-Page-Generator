@@ -2,9 +2,12 @@
     "name": "cover-page-generator",
     "version": "1.0.0",
     "description": "A professional, high-fidelity cover page generator for Metropolitan University students. Featuring real-time preview, dark mode, and high-quality PDF exports.",
-    "main": "script.js",
     "scripts": {
-        "dev": "node server/server.js",
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "server": "node server/server.js",
+        "dev:all": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"node server/server.js\" \"vite\"",
         "start": "node server/server.js",
         "test": "echo \"No tests\""
     },
@@ -21,8 +24,23 @@
     "homepage": "https://github.com/Nafiz-365/Cover-Page-Generator#readme",
     "dependencies": {
         "@sparticuz/chromium": "^143.0.4",
+        "canvas-confetti": "^1.9.4",
+        "clsx": "^2.1.1",
         "express": "^5.2.1",
+        "lucide-react": "^1.45.0",
         "puppeteer": "^24.40.0",
-        "puppeteer-core": "^24.40.0"
+        "puppeteer-core": "^24.40.0",
+        "react": "^19.3.0",
+        "react-dom": "^19.3.0",
+        "tailwind-merge": "^3.7.0"
+    },
+    "devDependencies": {
+        "@tailwindcss/vite": "^4.3.3",
+        "@vitejs/plugin-react": "^6.1.1",
+        "autoprefixer": "^10.6.0",
+        "concurrently": "^10.0.5",
+        "postcss": "^8.5.28",
+        "tailwindcss": "^4.3.3",
+        "vite": "^8.3.0"
     }
 }
