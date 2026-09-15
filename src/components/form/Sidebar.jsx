@@ -23,7 +23,7 @@ import {
   Layers,
 } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({ sidebarPercent = 40, isDragging }) {
   const {
     mode,
     setMode,
@@ -58,11 +58,14 @@ export default function Sidebar() {
   };
 
   const inputClasses =
-    'w-full px-3 py-2.5 text-xs rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 shadow-xs transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500';
+    'w-full px-3 py-2.5 sm:py-2 text-base sm:text-xs min-h-[44px] sm:min-h-[38px] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/40 shadow-xs transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500';
 
   return (
     <aside
-      className={`w-full lg:w-107.5 shrink-0 transition-all duration-300 lg:sticky lg:top-28 lg:max-h-[calc(100vh-8.5rem)] lg:overflow-y-auto lg:pr-1.5 ${
+      style={{ '--sidebar-width': `${sidebarPercent}%` }}
+      className={`w-full lg:w-(--sidebar-width,40%) shrink-0 ${
+        isDragging ? '' : 'transition-[width] duration-150'
+      } lg:sticky lg:top-28 lg:max-h-[calc(100vh-8.5rem)] lg:overflow-y-auto lg:pr-1.5 ${
         mobileTab === 'preview' ? 'hidden lg:block' : 'block'
       }`}
     >
@@ -103,7 +106,7 @@ export default function Sidebar() {
                 >
                   <span>{isLab ? 'Lab Report Details' : 'Assignment Details'}</span>
                 </h2>
-                <p className="text-[11px] truncate" style={{ color: 'var(--subtext)' }}>
+                <p className="text-[11px] sm:text-xs leading-snug mt-0.5" style={{ color: 'var(--subtext)' }}>
                   {isLab ? 'Customize experiment and lab submission' : 'Fill details for university assignment'}
                 </p>
               </div>
@@ -116,11 +119,13 @@ export default function Sidebar() {
                   resetForm();
                 }
               }}
+              aria-label="Reset all form fields"
               title="Reset All Fields"
-              className="p-1.5 rounded-xl hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer opacity-70 hover:opacity-100 shrink-0"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer shrink-0"
               style={{ color: 'var(--subtext)' }}
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
+              <span>Reset</span>
             </button>
           </div>
 
@@ -182,30 +187,17 @@ export default function Sidebar() {
             <div className="flex items-center justify-between mb-2.5">
               <div className="flex items-center gap-1.5">
                 <BookOpen className="w-3.5 h-3.5" style={{ color: 'var(--accent-color, #2563eb)' }} />
-                <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
+                <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
                   Course & Work
                 </span>
-                <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-md bg-blue-500/15 text-blue-500">
-                  Required
-                </span>
               </div>
-              <button
-                type="button"
-                onClick={savePreset}
-                className="flex items-center gap-1 text-[10px] font-bold hover:underline transition-colors cursor-pointer uppercase tracking-wider"
-                style={{ color: 'var(--accent-color, #2563eb)' }}
-                title="Save course & teacher details as a preset"
-              >
-                <BookmarkPlus className="w-3.5 h-3.5" />
-                <span>Save Preset</span>
-              </button>
             </div>
 
             {/* Work Title */}
             <div className="flex flex-col gap-1 mb-2.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: 'var(--label-text)' }}>
+              <label className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
                 <span>{isLab ? 'Experiment Title / Name' : 'Assignment Title / Topic'}</span>
-                <span className="text-red-500">*</span>
+                <span className="text-red-500 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"
@@ -222,7 +214,7 @@ export default function Sidebar() {
             {/* Course Name & Code */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-2.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Course Name
                 </label>
                 <input
@@ -241,7 +233,7 @@ export default function Sidebar() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Course Code
                 </label>
                 <input
@@ -250,7 +242,7 @@ export default function Sidebar() {
                   value={formData.courseCode}
                   onChange={(e) => updateField('courseCode', e.target.value)}
                   onBlur={handleCourseCodeBlur}
-                  placeholder="e.g. CSE-3201"
+                  placeholder="e.g. CSE-300"
                   className={inputClasses}
                   style={inputStyle}
                 />
@@ -260,13 +252,14 @@ export default function Sidebar() {
             {/* Work No & Submission Date */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
-                  <Hash className="w-2.5 h-2.5" />
+                <label className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
+                  <Hash className="w-3 h-3" />
                   <span>{isLab ? 'Report No' : 'Assignment No'}</span>
                 </label>
                 <input
                   type="text"
                   id="input-work-no"
+                  inputMode="numeric"
                   value={formData.workNo}
                   onChange={(e) => updateField('workNo', e.target.value)}
                   placeholder="e.g. 01"
@@ -276,8 +269,8 @@ export default function Sidebar() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
-                  <Calendar className="w-2.5 h-2.5" />
+                <label className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
+                  <Calendar className="w-3 h-3" />
                   <span>Submission Date</span>
                 </label>
                 <input
@@ -289,6 +282,19 @@ export default function Sidebar() {
                   style={inputStyle}
                 />
               </div>
+            </div>
+
+            {/* Save Preset Action */}
+            <div className="mt-3 pt-2.5 flex justify-end border-t border-black/5 dark:border-white/5">
+              <button
+                type="button"
+                onClick={savePreset}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/20 transition-all cursor-pointer"
+                title="Save course & teacher details as a preset"
+              >
+                <BookmarkPlus className="w-3.5 h-3.5" />
+                <span>Save as Preset</span>
+              </button>
             </div>
           </section>
 
@@ -304,23 +310,22 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-1.5 mb-2.5">
               <User className="w-3.5 h-3.5" style={{ color: 'var(--accent-color, #2563eb)' }} />
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
                 Student Details
-              </span>
-              <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-md bg-blue-500/15 text-blue-500">
-                Required
               </span>
             </div>
 
             {/* Student Name */}
             <div className="flex flex-col gap-1 mb-2.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: 'var(--label-text)' }}>
+              <label className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
                 <span>Student Full Name</span>
-                <span className="text-red-500">*</span>
+                <span className="text-red-500 font-bold" aria-hidden="true">*</span>
               </label>
               <input
                 type="text"
                 id="input-student-name"
+                autoCapitalize="words"
+                autoComplete="name"
                 value={formData.studentName}
                 onChange={(e) => updateField('studentName', e.target.value)}
                 onBlur={() => handleSmartBlur('studentName')}
@@ -333,23 +338,25 @@ export default function Sidebar() {
             {/* Student ID & Batch */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-2.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--label-text)' }}>
                   <span>Student ID</span>
-                  <span className="text-red-500">*</span>
+                  <span className="text-red-500 font-bold" aria-hidden="true">*</span>
                 </label>
                 <input
                   type="text"
                   id="input-student-id"
+                  inputMode="numeric"
+                  autoComplete="off"
                   value={formData.studentId}
                   onChange={(e) => updateField('studentId', e.target.value)}
-                  placeholder="e.g. 210101"
+                  placeholder="e.g. 232-115-365"
                   className={inputClasses}
                   style={inputStyle}
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Batch
                 </label>
                 <input
@@ -357,7 +364,7 @@ export default function Sidebar() {
                   id="input-student-batch"
                   value={formData.studentBatch}
                   onChange={(e) => updateField('studentBatch', e.target.value)}
-                  placeholder="e.g. 58th"
+                  placeholder="e.g. 59th"
                   className={inputClasses}
                   style={inputStyle}
                 />
@@ -367,7 +374,7 @@ export default function Sidebar() {
             {/* Section & Department */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Section
                 </label>
                 <input
@@ -375,14 +382,14 @@ export default function Sidebar() {
                   id="input-student-section"
                   value={formData.studentSection}
                   onChange={(e) => updateField('studentSection', e.target.value)}
-                  placeholder="e.g. A"
+                  placeholder="e.g. J"
                   className={inputClasses}
                   style={inputStyle}
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Department
                 </label>
                 <select
@@ -421,19 +428,20 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-1.5 mb-2.5">
               <GraduationCap className="w-3.5 h-3.5" style={{ color: 'var(--accent-color, #2563eb)' }} />
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
                 Teacher Details
               </span>
             </div>
 
             {/* Teacher Name */}
             <div className="flex flex-col gap-1 mb-2.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+              <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                 Teacher's Name
               </label>
               <input
                 type="text"
                 id="input-teacher-name"
+                autoCapitalize="words"
                 value={formData.teacherName}
                 onChange={(e) => updateField('teacherName', e.target.value)}
                 onBlur={() => handleSmartBlur('teacherName')}
@@ -446,7 +454,7 @@ export default function Sidebar() {
             {/* Designation & Department */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Designation
                 </label>
                 <input
@@ -461,7 +469,7 @@ export default function Sidebar() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Department
                 </label>
                 <select
@@ -500,13 +508,13 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-1.5 mb-2">
               <Building className="w-3.5 h-3.5" style={{ color: 'var(--accent-color, #2563eb)' }} />
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
                 Institution
               </span>
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+              <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                 University Name & Location
               </label>
               <input
@@ -533,14 +541,14 @@ export default function Sidebar() {
           >
             <div className="flex items-center gap-1.5 mb-2.5">
               <Palette className="w-3.5 h-3.5" style={{ color: 'var(--accent-color, #2563eb)' }} />
-              <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
+              <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--card-text)' }}>
                 Template & Typography
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Layout Template
                 </label>
                 <select
@@ -565,7 +573,7 @@ export default function Sidebar() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Font Family
                 </label>
                 <select
@@ -592,14 +600,14 @@ export default function Sidebar() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   Accent Color
                 </label>
                 <ColorPicker />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--label-text)' }}>
+                <label className="text-xs font-semibold" style={{ color: 'var(--label-text)' }}>
                   University Logo
                 </label>
                 <LogoUpload />
@@ -611,32 +619,14 @@ export default function Sidebar() {
           <PresetLibrary />
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons: Sticky with Clear Visual Hierarchy */}
         <div
-          className="flex flex-col gap-2.5 mt-5 pt-4"
+          className="sticky bottom-0 z-20 flex flex-col gap-2.5 mt-5 pt-3.5 pb-1 backdrop-blur-xl border-t border-(--card-border)"
           style={{
-            borderTopWidth: '1px',
-            borderTopStyle: 'solid',
-            borderTopColor: 'var(--card-border)',
+            backgroundColor: 'var(--card-bg)',
           }}
         >
-          {/* Mobile Only: Quick Switch to Preview Button */}
-          <button
-            type="button"
-            onClick={() => setMobileTab('preview')}
-            className="lg:hidden w-full py-3 px-4 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-            style={{
-              backgroundColor: 'var(--highlight-bg)',
-              borderColor: 'var(--highlight-border)',
-              color: 'var(--accent-color)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
-            }}
-          >
-            <Eye className="w-4 h-4" />
-            <span>View Live Preview</span>
-          </button>
-
+          {/* Primary CTA */}
           <button
             type="button"
             onClick={handleGeneratePdf}
@@ -656,17 +646,15 @@ export default function Sidebar() {
             )}
           </button>
 
+          {/* Secondary CTA */}
           <button
             type="button"
             onClick={handleSaveImage}
             disabled={generatingPdf || savingImage}
-            className="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer shadow-xs"
+            className="w-full py-2.5 px-4 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer border border-slate-200/80 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 active:scale-[0.98]"
             style={{
               backgroundColor: 'var(--btn-secondary-bg)',
-              borderColor: 'var(--btn-secondary-border)',
               color: 'var(--btn-secondary-text)',
-              borderWidth: '1px',
-              borderStyle: 'solid',
             }}
           >
             {savingImage ? (

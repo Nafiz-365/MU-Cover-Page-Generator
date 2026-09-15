@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="mt-12 text-center text-xs py-4 transition-colors" style={{ color: 'var(--subtext)' }}>
+    <footer className="mt-8 lg:mt-12 text-center text-xs py-4 pb-20 lg:pb-4 transition-colors" style={{ color: 'var(--subtext)' }}>
       <p className="flex items-center justify-center gap-1.5 flex-wrap">
         <span>Made with ❤️ for Metropolitan University Students by</span>
         <a

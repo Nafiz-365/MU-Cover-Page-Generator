@@ -21,17 +21,29 @@ try {
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(ROOT, 'dist')));
 
+let browserInstance = null;
+async function getBrowser() {
+  if (!browserInstance || !browserInstance.connected) {
+    browserInstance = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
+    });
+  }
+  return browserInstance;
+}
+
 app.post('/api/pdf', async (req, res) => {
   const data = req.body || {};
-  let browser;
+  let page;
   try {
     const html = buildPdfHtml(data, DEFAULT_LOGO_B64);
-
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const page = await browser.newPage();
+    const browser = await getBrowser();
+    page = await browser.newPage();
 
     await page.setViewport({
       width: 794,
@@ -40,14 +52,10 @@ app.post('/api/pdf', async (req, res) => {
     });
     await page.emulateMediaType('screen');
 
-    try {
-      await page.setContent(html, {
-        waitUntil: 'networkidle0',
-        timeout: 4000,
-      });
-    } catch (e) {
-      console.log(`[PDF] setContent timeout: ${e.message}. Proceeding...`);
-    }
+    await page.setContent(html, {
+      waitUntil: 'domcontentloaded',
+      timeout: 10000,
+    });
 
     await page.evaluate(async () => {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -84,41 +92,33 @@ app.post('/api/pdf', async (req, res) => {
     console.error('[PDF] Error:', err);
     res.status(500).json({ error: 'PDF_FAILED', message: err.message });
   } finally {
-    if (browser) {
+    if (page) {
       try {
-        await browser.close();
-      } catch {}
+        await page.close();
+      } catch { }
     }
   }
 });
 
 app.post('/api/image', async (req, res) => {
   const data = req.body || {};
-  let browser;
+  let page;
   try {
     const html = buildPdfHtml(data, DEFAULT_LOGO_B64);
-
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-    const page = await browser.newPage();
+    const browser = await getBrowser();
+    page = await browser.newPage();
 
     await page.setViewport({
       width: 794,
       height: 1123,
-      deviceScaleFactor: 3,
+      deviceScaleFactor: 2.5,
     });
     await page.emulateMediaType('screen');
 
-    try {
-      await page.setContent(html, {
-        waitUntil: 'networkidle0',
-        timeout: 4000,
-      });
-    } catch (e) {
-      console.log(`[Image] setContent timeout: ${e.message}. Proceeding...`);
-    }
+    await page.setContent(html, {
+      waitUntil: 'domcontentloaded',
+      timeout: 10000,
+    });
 
     await page.evaluate(async () => {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -155,10 +155,10 @@ app.post('/api/image', async (req, res) => {
     console.error('[Image] Error:', err);
     res.status(500).json({ error: 'IMAGE_FAILED', message: err.message });
   } finally {
-    if (browser) {
+    if (page) {
       try {
-        await browser.close();
-      } catch {}
+        await page.close();
+      } catch { }
     }
   }
 });

@@ -28,8 +28,8 @@ export default function Header() {
   return (
     <>
       <header
-        className={`fixed top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-40 rounded-2xl transition-all duration-300 backdrop-blur-xl ${
-          scrolled ? 'py-2 px-3.5 sm:px-5 shadow-xl' : 'py-2.5 sm:py-3 px-3.5 sm:px-6 shadow-glass'
+        className={`fixed top-2 sm:top-4 left-2.5 sm:left-6 right-2.5 sm:right-6 z-40 rounded-2xl transition-all duration-300 backdrop-blur-xl ${
+          scrolled ? 'py-1.5 sm:py-2 px-3 sm:px-5 shadow-xl' : 'py-2 sm:py-3 px-3 sm:px-6 shadow-glass'
         }`}
         style={{
           backgroundColor: 'var(--header-bg)',
@@ -47,15 +47,12 @@ export default function Header() {
               alt="Metropolitan University"
               className="h-7 sm:h-8 object-contain bg-white rounded-lg p-0.5 sm:p-1 shadow-xs border border-slate-200/60 shrink-0"
             />
-            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-              <span
-                className="text-xs sm:text-base font-extrabold tracking-tight truncate"
-                style={{ color: 'var(--header-text)' }}
-              >
-                <span className="sm:hidden">MU Cover Page</span>
-                <span className="hidden sm:inline">MU Cover Page Generator</span>
-              </span>
-            </div>
+            <h1
+              className="hidden md:block text-sm sm:text-base font-extrabold tracking-tight truncate m-0"
+              style={{ color: 'var(--header-text)' }}
+            >
+              MU Cover Page Generator
+            </h1>
           </div>
 
           {/* Right: Desktop Switcher & Mobile Controls */}

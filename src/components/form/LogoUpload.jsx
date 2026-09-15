@@ -60,21 +60,25 @@ export default function LogoUpload() {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 px-1">
-        <span>Default Logo:</span>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="hover:opacity-80 transition-opacity cursor-pointer flex items-center gap-1.5"
-          title="Click to use default Metropolitan University logo"
-        >
+      <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 px-1 pt-0.5">
+        <div className="flex items-center gap-2 min-w-0">
           <img
             src="/assets/logo.png"
-            alt="Default MU Logo"
-            className="h-5 object-contain bg-white/90 p-0.5 rounded"
+            alt="Default Metropolitan University Logo"
+            className="h-5 w-auto object-contain bg-white/95 p-0.5 rounded border border-slate-200 dark:border-white/10 shrink-0"
           />
-          <span className="text-[10px] text-blue-500 underline font-medium">Reset</span>
-        </button>
+          <span className="text-[11px] truncate">Default MU Logo</span>
+        </div>
+        {logoDataUrl && (
+          <button
+            type="button"
+            onClick={handleReset}
+            className="text-xs text-blue-500 hover:text-blue-600 underline font-medium cursor-pointer shrink-0 ml-2"
+            title="Restore default Metropolitan University logo"
+          >
+            Restore Default
+          </button>
+        )}
       </div>
     </div>
   );

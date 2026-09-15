@@ -41,14 +41,10 @@ module.exports = async (req, res) => {
     });
     await page.emulateMediaType('screen');
 
-    try {
-      await page.setContent(html, {
-        waitUntil: 'networkidle0',
-        timeout: 4000,
-      });
-    } catch (e) {
-      console.log(`setContent timeout: ${e.message}. Proceeding...`);
-    }
+    await page.setContent(html, {
+      waitUntil: 'domcontentloaded',
+      timeout: 10000,
+    });
 
     await page.evaluate(async () => {
       if (document.fonts && document.fonts.ready) await document.fonts.ready;

@@ -49,6 +49,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .preview-logo {
@@ -56,13 +57,18 @@
   max-width: 100%;
   height: auto;
   object-fit: contain;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem auto;
+  display: block;
 }
 
 .preview-title {
   text-align: center;
   margin-top: 0.5rem;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .preview-title h2 {
@@ -70,8 +76,10 @@
   font-weight: 800;
   color: var(--accent-color, #2563eb);
   text-transform: uppercase;
-  margin-bottom: 1.5rem;
+  margin: 0 auto 1.5rem auto;
   letter-spacing: 1px;
+  text-align: center;
+  width: 100%;
 }
 
 .assignment-on {
@@ -139,19 +147,18 @@
 
 .preview-footer {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin-top: auto;
+  max-width: 610px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin: auto auto 0 auto;
   padding-top: 1rem;
-  gap: 4rem;
+  box-sizing: border-box;
 }
 
 .footer-column {
-  flex: 1;
-}
-
-.footer-column:first-child {
-  padding-left: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .footer-column h3 {
@@ -164,6 +171,7 @@
   width: fit-content;
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  white-space: nowrap;
 }
 
 .footer-info p {
@@ -193,7 +201,7 @@
 }
 
 .submission-date {
-  margin-top: 4rem;
+  margin-top: 1.75rem;
   font-size: 1.1rem;
   font-weight: 700;
   color: #2d3748;

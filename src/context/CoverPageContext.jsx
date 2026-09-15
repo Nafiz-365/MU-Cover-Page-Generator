@@ -4,6 +4,7 @@ import { DEFAULT_UNIVERSITY, DEFAULT_DEPT, ACCENT_PRESETS } from '../constants/o
 const CoverPageContext = createContext(null);
 
 import confetti from 'canvas-confetti';
+import { generateClientPdf, generateClientImage } from '../utils/exportUtils';
 
 const hexToRgb = (hex) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -135,6 +136,20 @@ export function CoverPageProvider({ children }) {
       if (savedPresets) {
         setPresets(JSON.parse(savedPresets));
       }
+
+      // Preload default logo as Data URL for instant, local exports
+      fetch('/assets/logo.png')
+        .then((res) => res.blob())
+        .then((blob) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            if (typeof reader.result === 'string') {
+              setLogoDataUrl((current) => current || reader.result);
+            }
+          };
+          reader.readAsDataURL(blob);
+        })
+        .catch(() => {});
     } catch (e) {
       console.error('Error loading initial data from localStorage:', e);
     }
@@ -362,90 +377,103 @@ export function CoverPageProvider({ children }) {
     logoDataUrl,
   ]);
 
-  // Generate PDF
+  // Generate PDF (Instant client-side with server fallback)
   const handleGeneratePdf = useCallback(async () => {
     if (!validateRequired()) return;
 
     setGeneratingPdf(true);
+    const safeName = (formData.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
+
     try {
-      const payload = buildPayload();
-      const resp = await fetch('/api/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        let errorMsg = `Server Error: ${resp.status}`;
-        try {
-          const errJson = await resp.json();
-          if (errJson.message) errorMsg = errJson.message;
-        } catch {
-          // ignore
-        }
-        throw new Error(errorMsg);
-      }
-
-      const contentType = resp.headers.get('Content-Type');
-      if (contentType && !contentType.includes('application/pdf')) {
-        throw new Error('Server returned an invalid file format.');
-      }
-
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const safeName = (formData.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
-      a.download = `CoverPage_${safeName}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
+      // Primary: Instant client-side PDF generation (~300ms)
+      await generateClientPdf('capture-area', `CoverPage_${safeName}`);
       showToast('Cover Page Generated Successfully!');
       fireConfetti();
-    } catch (err) {
-      console.error('PDF generation error:', err);
-      showToast(`Error: ${err.message}`, 'error');
+    } catch (clientErr) {
+      console.warn('Client-side PDF export failed, attempting server fallback:', clientErr);
+      try {
+        const payload = buildPayload();
+        const resp = await fetch('/api/pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) {
+          let errorMsg = `Server Error: ${resp.status}`;
+          try {
+            const errJson = await resp.json();
+            if (errJson.message) errorMsg = errJson.message;
+          } catch {
+            // ignore
+          }
+          throw new Error(errorMsg);
+        }
+
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CoverPage_${safeName}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        showToast('Cover Page Generated Successfully!');
+        fireConfetti();
+      } catch (err) {
+        console.error('PDF generation error:', err);
+        showToast(`Error: ${err.message}`, 'error');
+      }
     } finally {
       setGeneratingPdf(false);
     }
   }, [validateRequired, buildPayload, formData.studentName, showToast, fireConfetti]);
 
-  // Save as Image
+  // Save as Image (Instant client-side with server fallback)
   const handleSaveImage = useCallback(async () => {
     if (!validateRequired()) return;
 
     setSavingImage(true);
+    const safeName = (formData.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
+
     try {
-      const payload = buildPayload();
-      const resp = await fetch('/api/image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!resp.ok) {
-        const errText = await resp.text();
-        throw new Error(errText || 'Image generation failed on server.');
-      }
-
-      const blob = await resp.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const safeName = (formData.studentName || 'Student').replace(/[^\w\-]+/g, '_').slice(0, 40);
-      a.download = `CoverPage_${safeName}.png`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
+      // Primary: Instant client-side PNG generation (~200ms)
+      await generateClientImage('capture-area', `CoverPage_${safeName}`);
       showToast('Cover Page Saved as Image!');
       fireConfetti();
-    } catch (err) {
-      console.error('Image generation error:', err);
-      showToast(`Error: ${err.message}`, 'error');
+    } catch (clientErr) {
+      console.warn('Client-side image export failed, attempting server fallback:', clientErr);
+      try {
+        const payload = buildPayload();
+        const resp = await fetch('/api/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (!resp.ok) {
+          const errText = await resp.text();
+          throw new Error(errText || 'Image generation failed on server.');
+        }
+
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `CoverPage_${safeName}.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        showToast('Cover Page Saved as Image!');
+        fireConfetti();
+      } catch (err) {
+        console.error('Image generation error:', err);
+        showToast(`Error: ${err.message}`, 'error');
+      }
     } finally {
       setSavingImage(false);
     }

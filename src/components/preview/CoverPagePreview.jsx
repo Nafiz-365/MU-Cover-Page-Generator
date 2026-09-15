@@ -38,9 +38,11 @@ export default function CoverPagePreview() {
       <div className="preview-header">
         <img
           id="preview-logo"
+          crossOrigin="anonymous"
           src={logoDataUrl || '/assets/logo.png'}
-          alt="University Logo"
+          alt="Metropolitan University Logo"
           className="preview-logo clickable-view"
+          style={{ imageRendering: 'high-quality', WebkitFontSmoothing: 'antialiased' }}
           onClick={() => focusInput('logo-upload')}
           title="Click to change logo"
         />
@@ -56,7 +58,7 @@ export default function CoverPagePreview() {
             onClick={() => focusInput('work-no')}
             title="Click to edit Work No"
           >
-            {formData.workNo || '...'}
+            {formData.workNo || '—'}
           </span>
         </h2>
         <div className="assignment-on">
@@ -67,7 +69,7 @@ export default function CoverPagePreview() {
             onClick={() => focusInput('work-title')}
             title="Click to edit Title"
           >
-            {formData.workTitle || '.........................'}
+            {formData.workTitle || <span className="opacity-40 font-normal">Assignment Title</span>}
           </div>
         </div>
       </div>
@@ -82,7 +84,7 @@ export default function CoverPagePreview() {
             onClick={() => focusInput('course-name')}
             title="Click to edit Course Name"
           >
-            {formData.courseName || '.........................'}
+            {formData.courseName || <span className="opacity-40 font-normal">Course Name</span>}
           </span>
         </div>
         <div className="course-row">
@@ -93,7 +95,7 @@ export default function CoverPagePreview() {
             onClick={() => focusInput('course-code')}
             title="Click to edit Course Code"
           >
-            {formData.courseCode || '.........................'}
+            {formData.courseCode || <span className="opacity-40 font-normal">Course Code</span>}
           </span>
         </div>
       </div>
@@ -159,7 +161,7 @@ export default function CoverPagePreview() {
                 onClick={() => focusInput('student-id')}
                 title="Click to edit ID"
               >
-                {formData.studentId || '.........'}
+                {formData.studentId || <span className="opacity-40 font-normal">N/A</span>}
               </span>
             </p>
             <p className="batch">
@@ -170,7 +172,7 @@ export default function CoverPagePreview() {
                 onClick={() => focusInput('student-batch')}
                 title="Click to edit Batch"
               >
-                {formData.studentBatch || '...'}
+                {formData.studentBatch || <span className="opacity-40 font-normal">N/A</span>}
               </span>
             </p>
             {formData.studentSection && (

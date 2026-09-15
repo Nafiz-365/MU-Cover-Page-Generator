@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import CoverPagePreview from './CoverPagePreview';
 import { useCoverPage } from '../../context/CoverPageContext';
-import { ZoomIn, ZoomOut, RotateCcw, FileDown, ImageDown, Edit3, Loader2, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, FileDown, ImageDown, Loader2, Maximize2, Download, X } from 'lucide-react';
 
 export default function PreviewArea() {
   const {
@@ -16,24 +16,40 @@ export default function PreviewArea() {
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(800);
   const [userZoom, setUserZoom] = useState(1);
+  const [fabOpen, setFabOpen] = useState(false);
 
-  // Measure available container width on mount, resize, and when mobileTab changes
+  // Measure available container width dynamically on resize & layout split drag
   useEffect(() => {
-    const updateWidth = () => {
-      if (containerRef.current && containerRef.current.clientWidth > 0) {
-        setContainerWidth(containerRef.current.clientWidth);
-      }
+    const el = containerRef.current;
+    if (!el) return;
+
+    const update = (w) => {
+      if (w > 0) setContainerWidth(w);
     };
 
-    // Immediate and next-tick measure to account for display transitions
-    updateWidth();
-    const timeout = setTimeout(updateWidth, 50);
-    window.addEventListener('resize', updateWidth);
+    update(el.clientWidth);
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect && entry.contentRect.width > 0) {
+          update(entry.contentRect.width);
+        }
+      }
+    });
+
+    observer.observe(el);
+    const handleWinResize = () => update(el.clientWidth);
+    window.addEventListener('resize', handleWinResize);
 
     return () => {
-      clearTimeout(timeout);
-      window.removeEventListener('resize', updateWidth);
+      observer.disconnect();
+      window.removeEventListener('resize', handleWinResize);
     };
+  }, [mobileTab]);
+
+  // Close FAB when switching tabs
+  useEffect(() => {
+    setFabOpen(false);
   }, [mobileTab]);
 
   // Base A4 dimensions in px at standard 96 DPI: 210mm = 794px, 297mm = 1123px
@@ -58,7 +74,9 @@ export default function PreviewArea() {
     <section
       ref={containerRef}
       className={`flex-1 flex flex-col items-center w-full min-w-0 transition-all duration-300 ${
-        mobileTab === 'form' ? 'hidden lg:flex' : 'flex'
+        mobileTab === 'form'
+          ? 'max-lg:fixed max-lg:-left-[9999px] max-lg:top-0 max-lg:pointer-events-none max-lg:opacity-0 lg:flex'
+          : 'flex'
       }`}
     >
       {/* Zoom Toolbar: Clean, Glassmorphism, accessible across all devices */}
@@ -98,6 +116,14 @@ export default function PreviewArea() {
           </button>
           <button
             type="button"
+            onClick={() => setUserZoom(Number((1 / autoFitScale).toFixed(2)))}
+            title="Actual Size (100%)"
+            className="px-2 py-1 hover:bg-slate-200/50 dark:hover:bg-white/10 rounded-lg text-[10px] font-medium transition-colors cursor-pointer hidden sm:flex items-center"
+          >
+            <span>100%</span>
+          </button>
+          <button
+            type="button"
             onClick={handleZoomIn}
             title="Zoom In"
             className="p-1.5 hover:bg-slate-200/50 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
@@ -109,7 +135,7 @@ export default function PreviewArea() {
 
       {/* Dynamic Scaled A4 Sheet Container */}
       <div
-        className="w-full flex justify-center items-start overflow-x-auto overflow-y-visible py-2 pb-24 lg:pb-8"
+        className="w-full flex justify-center items-start overflow-x-auto overflow-y-visible py-2 pb-28 lg:pb-8"
         style={{
           minHeight: `${renderedHeight + 20}px`,
         }}
@@ -137,75 +163,81 @@ export default function PreviewArea() {
         </div>
       </div>
 
-      {/* Mobile / Tablet Floating Action Bar (Pinned to bottom on mobile preview) */}
-      <div
-        className="lg:hidden sticky bottom-4 z-30 w-full max-w-md mt-4 px-3 py-2.5 rounded-2xl backdrop-blur-xl shadow-2xl flex items-center gap-2"
-        style={{
-          backgroundColor: 'var(--card-bg)',
-          borderColor: 'var(--card-border)',
-          borderWidth: '1px',
-          borderStyle: 'solid',
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setMobileTab('form')}
-          className="px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer shrink-0"
-          style={{
-            backgroundColor: 'var(--btn-secondary-bg)',
-            color: 'var(--card-text)',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-            borderColor: 'var(--card-border)',
-          }}
-        >
-          <Edit3 className="w-3.5 h-3.5" />
-          <span>Form</span>
-        </button>
+      {/* Mobile / Tablet Collapsible FAB (Floating Action Button) */}
+      <div className="lg:hidden fixed bottom-20 right-4 z-30 flex flex-col items-end gap-2.5">
+        {/* Backdrop overlay to dismiss when open */}
+        {fabOpen && (
+          <div
+            className="fixed inset-0 z-[-1]"
+            onClick={() => setFabOpen(false)}
+            aria-hidden="true"
+          />
+        )}
 
-        <button
-          type="button"
-          onClick={handleGeneratePdf}
-          disabled={generatingPdf}
-          className="flex-1 py-2.5 px-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+        {/* Expanded Action Options */}
+        <div
+          className={`flex flex-col gap-2 transition-all duration-300 origin-bottom ${
+            fabOpen
+              ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 scale-75 translate-y-3 pointer-events-none'
+          }`}
         >
-          {generatingPdf ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <FileDown className="w-3.5 h-3.5" />
-              <span>PDF</span>
-            </>
-          )}
-        </button>
+          {/* Download PDF Button */}
+          <button
+            type="button"
+            onClick={() => {
+              handleGeneratePdf();
+              setFabOpen(false);
+            }}
+            disabled={generatingPdf || savingImage}
+            className="flex items-center gap-2.5 h-11 pl-4 pr-5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold text-xs rounded-full shadow-lg shadow-blue-600/30 transition-all cursor-pointer active:scale-95 whitespace-nowrap"
+          >
+            {generatingPdf ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileDown className="w-4 h-4" />
+            )}
+            <span>{generatingPdf ? 'Generating...' : 'Download PDF'}</span>
+          </button>
 
+          {/* Save as Image Button */}
+          <button
+            type="button"
+            onClick={() => {
+              handleSaveImage();
+              setFabOpen(false);
+            }}
+            disabled={generatingPdf || savingImage}
+            className="flex items-center gap-2.5 h-11 pl-4 pr-5 font-bold text-xs rounded-full shadow-lg transition-all cursor-pointer active:scale-95 whitespace-nowrap backdrop-blur-xl border border-white/15 ring-1 ring-black/10 dark:ring-white/10"
+            style={{
+              backgroundColor: 'var(--card-bg)',
+              color: 'var(--card-text)',
+            }}
+          >
+            {savingImage ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ImageDown className="w-4 h-4" />
+            )}
+            <span>{savingImage ? 'Saving...' : 'Save as Image'}</span>
+          </button>
+        </div>
+
+        {/* Main FAB Toggle Button */}
         <button
           type="button"
-          onClick={handleSaveImage}
-          disabled={savingImage}
-          className="flex-1 py-2.5 px-2 font-bold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          style={{
-            backgroundColor: 'var(--btn-secondary-bg)',
-            color: 'var(--btn-secondary-text)',
-            borderWidth: '1px',
-            borderStyle: 'solid',
-            borderColor: 'var(--btn-secondary-border)',
-          }}
+          onClick={() => setFabOpen((prev) => !prev)}
+          aria-label={fabOpen ? 'Close download menu' : 'Open download menu'}
+          aria-expanded={fabOpen}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 cursor-pointer active:scale-90 ${
+            fabOpen
+              ? 'bg-slate-700 dark:bg-slate-600 text-white rotate-0 ring-4 ring-slate-700/20 dark:ring-slate-500/20'
+              : 'bg-blue-600 hover:bg-blue-500 text-white ring-4 ring-blue-600/25 hover:ring-blue-500/30'
+          }`}
         >
-          {savingImage ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <>
-              <ImageDown className="w-3.5 h-3.5" />
-              <span>Image</span>
-            </>
-          )}
+          <div className={`transition-transform duration-300 ${fabOpen ? 'rotate-180' : 'rotate-0'}`}>
+            {fabOpen ? <X className="w-5 h-5" /> : <Download className="w-5 h-5" />}
+          </div>
         </button>
       </div>
     </section>

@@ -402,14 +402,24 @@ function buildPdfHtml(raw, defaultLogoB64 = '') {
     @page { size: A4; margin: 0; }
   `;
 
-  const captureArea = buildCaptureAreaHtml(data, defaultLogoB64);
+  const fontParamMap = {
+    'font-classic': 'family=Inter:wght@400;500;600;700',
+    'font-sans': 'family=Open+Sans:wght@400;600;700',
+    'font-modern': 'family=Poppins:wght@400;600;700',
+    'font-serif': 'family=Merriweather:wght@400;700',
+    'font-mono': 'family=Roboto+Mono:wght@400;700',
+    'font-montserrat': 'family=Montserrat:wght@400;600;700',
+    'font-playfair': 'family=Playfair+Display:wght@400;600;700',
+    'font-oswald': 'family=Oswald:wght@400;600;700',
+  };
+  const fontParam = fontParamMap[data.font] || fontParamMap['font-classic'];
 
   return `<!doctype html>
   <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@400;600;700&family=Roboto+Mono:wght@400;700&family=Open+Sans:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?${fontParam}&display=swap" rel="stylesheet">
     <style>${A4_TEMPLATE_CSS}</style>
     <style>${pdfOnlyCss}</style>
   </head>
